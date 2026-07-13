@@ -1,0 +1,38 @@
+package tickflow
+
+// InstrumentType 标的类型
+type InstrumentType string
+
+const (
+	InstrumentTypeStock   InstrumentType = "stock"
+	InstrumentTypeETF     InstrumentType = "etf"
+	InstrumentTypeIndex   InstrumentType = "index"
+	InstrumentTypeBond    InstrumentType = "bond"
+	InstrumentTypeFund    InstrumentType = "fund"
+	InstrumentTypeOptions InstrumentType = "options"
+	InstrumentTypeOther   InstrumentType = "other"
+)
+
+// InstrumentExt 标的市场特定扩展字段
+type InstrumentExt struct {
+	Type        string  `json:"type,omitempty"`         // cn_equity / us_equity / hk_equity
+	FloatShares int64   `json:"float_shares,omitempty"` // 流通股本
+	TotalShares int64   `json:"total_shares,omitempty"` // 总股本
+	LimitUp     float64 `json:"limit_up,omitempty"`     // 涨停价 (cn_equity)
+	LimitDown   float64 `json:"limit_down,omitempty"`   // 跌停价 (cn_equity)
+	ListingDate string  `json:"listing_date,omitempty"` // 上市日期 (cn_equity)
+	NameEn      string  `json:"name_en,omitempty"`      // 英文名 (cn_equity)
+	TickSize    float64 `json:"tick_size,omitempty"`    // 最小变动价位 (cn_equity)
+	LotSize     int     `json:"lot_size,omitempty"`     // 每手股数 (hk_equity)
+}
+
+// Instrument 交易所标的
+type Instrument struct {
+	Symbol   string          `json:"symbol"`   // e.g. "600000.SH", "AAPL.US"
+	Exchange string          `json:"exchange"` // e.g. "SH", "US"
+	Code     string          `json:"code"`     // 交易所原生代码 e.g. "600000", "AAPL"
+	Region   string          `json:"region"`   // 地区: CN, US, HK
+	Name     *string         `json:"name"`     // 可读名称
+	Type     *InstrumentType `json:"type"`     // 标的类型
+	Ext      *InstrumentExt  `json:"ext"`      // 市场特定扩展字段
+}
