@@ -3,6 +3,7 @@
 ## v0.0.2
 
 1. 新增 .github action
+2. 实现 kline 相关方法
 
 ## v0.0.1
 
