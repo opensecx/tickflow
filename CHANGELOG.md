@@ -1,5 +1,9 @@
 # TickFlow Changelog
 
+## v0.0.3
+
+1. 新增实时行情相关功能
+
 ## v0.0.2
 
 1. 新增 .github action
