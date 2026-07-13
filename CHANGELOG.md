@@ -5,6 +5,7 @@
 1. 新增 .github action
 2. 实现 kline 相关方法
 3. 新增 golangci action
+4. 新增财务数据相关方法
 
 ## v0.0.1
 
