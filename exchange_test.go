@@ -196,10 +196,11 @@ func TestGetExchangeInstrument(t *testing.T) {
 			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
 
 			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INTERNAL_ERROR",
 				Message: "Internal server error",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -212,10 +213,11 @@ func TestGetExchangeInstrument(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 

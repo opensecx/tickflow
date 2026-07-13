@@ -157,10 +157,11 @@ func TestGetKline(t *testing.T) {
 			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
 
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INVALID_PERIOD",
 				Message: "Invalid period: 2d",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -173,10 +174,11 @@ func TestGetKline(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -189,10 +191,11 @@ func TestGetKline(t *testing.T) {
 	t.Run("404 symbol not found", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "SYMBOL_NOT_FOUND",
 				Message: "Symbol not found: INVALID.US",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -333,10 +336,11 @@ func TestBatchGetKline(t *testing.T) {
 			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
 
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INVALID_SYMBOL",
 				Message: "Invalid symbol format: BADFORMAT",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -349,10 +353,11 @@ func TestBatchGetKline(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -482,10 +487,11 @@ func TestGetExFactor(t *testing.T) {
 			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
 
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INVALID_SYMBOL",
 				Message: "Invalid symbol format: BADFORMAT",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -498,10 +504,11 @@ func TestGetExFactor(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -536,6 +543,7 @@ func setupKlineMockServer(t *testing.T, expectedPath string, expectedParams map[
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(respBody)
+		err := json.NewEncoder(w).Encode(respBody)
+		assert.Nil(t, err)
 	}))
 }

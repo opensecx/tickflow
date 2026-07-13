@@ -228,10 +228,11 @@ func TestGetInstrumentMetaData(t *testing.T) {
 			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
 
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INVALID_SYMBOL",
 				Message: "Invalid symbol format: INVALID",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -244,10 +245,11 @@ func TestGetInstrumentMetaData(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -436,10 +438,11 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 			assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
 
 			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "INVALID_SYMBOL",
 				Message: "Invalid symbol format: INVALID",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -452,10 +455,11 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 	t.Run("401 unauthorized", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode(ApiError{
+			err := json.NewEncoder(w).Encode(ApiError{
 				Code:    "AUTH_FAILED",
 				Message: "Invalid API key",
 			})
+			assert.Nil(t, err)
 		}))
 		defer ts.Close()
 
@@ -491,7 +495,8 @@ func setupBatchMockServer(t *testing.T, expectedPath string, expectedSymbols []s
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(respBody)
+		err = json.NewEncoder(w).Encode(respBody)
+		assert.Nil(t, err)
 	}))
 }
 
@@ -516,6 +521,7 @@ func setupMockServer(t *testing.T, expectedPath, expectedQuery string, respBody 
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(respBody)
+		err := json.NewEncoder(w).Encode(respBody)
+		assert.Nil(t, err)
 	}))
 }
