@@ -15,6 +15,7 @@ var (
 	ErrNilReq          = errors.New("nil req")
 	ErrEmptyKey        = errors.New("empty key")
 	ErrInvalidExchange = errors.New("invalid exchange, must be one of: US, SH, SZ, BJ, HK")
+	ErrEmptySymbol     = errors.New("symbol must not be empty")
 	ErrEmptySymbols    = errors.New("symbols must not be empty")
 	ErrTooManySymbols  = errors.New("symbols must not exceed 1000")
 )
