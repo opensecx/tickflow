@@ -1,6 +1,7 @@
 package tickflow
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +14,7 @@ import (
 func TestGetQuote(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetQuote(nil)
+		resp, err := tf.GetQuote(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
@@ -58,7 +59,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{Symbols: "AAPL.US,600000.SH"})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{Symbols: "AAPL.US,600000.SH"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Len(t, resp.Data, 2)
@@ -95,7 +96,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{Universes: "CN_Equity_A,CN_ETF"})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{Universes: "CN_Equity_A,CN_ETF"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 1)
@@ -110,7 +111,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Data)
@@ -130,7 +131,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{Symbols: "AAPL.US,TSLA.US,600000.SH,00700.HK"})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{Symbols: "AAPL.US,TSLA.US,600000.SH,00700.HK"})
 		require.NoError(t, err)
 		require.Len(t, resp.Data, 4)
 		assert.Equal(t, SessionPreMarket, resp.Data[0].Session)
@@ -153,7 +154,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{Symbols: "BAD"})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -170,7 +171,7 @@ func TestGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetQuote(&GetQuoteReq{Symbols: "AAPL.US"})
+		resp, err := tf.GetQuote(context.Background(), &GetQuoteReq{Symbols: "AAPL.US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -179,7 +180,7 @@ func TestGetQuote(t *testing.T) {
 func TestBatchGetQuote(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetQuote(nil)
+		resp, err := tf.BatchGetQuote(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
@@ -224,7 +225,7 @@ func TestBatchGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetQuote(&BatchGetQuoteReq{Symbols: symbols})
+		resp, err := tf.BatchGetQuote(context.Background(), &BatchGetQuoteReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Len(t, resp.Data, 3)
@@ -257,7 +258,7 @@ func TestBatchGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetQuote(&BatchGetQuoteReq{Symbols: symbols})
+		resp, err := tf.BatchGetQuote(context.Background(), &BatchGetQuoteReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.Len(t, resp.Data, 5)
 
@@ -275,7 +276,7 @@ func TestBatchGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetQuote(&BatchGetQuoteReq{Symbols: []string{}})
+		resp, err := tf.BatchGetQuote(context.Background(), &BatchGetQuoteReq{Symbols: []string{}})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Empty(t, resp.Data)
@@ -295,7 +296,7 @@ func TestBatchGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetQuote(&BatchGetQuoteReq{Symbols: []string{"BAD"}})
+		resp, err := tf.BatchGetQuote(context.Background(), &BatchGetQuoteReq{Symbols: []string{"BAD"}})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -312,7 +313,7 @@ func TestBatchGetQuote(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetQuote(&BatchGetQuoteReq{Symbols: []string{"AAPL.US"}})
+		resp, err := tf.BatchGetQuote(context.Background(), &BatchGetQuoteReq{Symbols: []string{"AAPL.US"}})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -321,14 +322,14 @@ func TestBatchGetQuote(t *testing.T) {
 func TestGetDepth(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetDepth(nil)
+		resp, err := tf.GetDepth(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbol returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetDepth(&GetDepthReq{Symbol: ""})
+		resp, err := tf.GetDepth(context.Background(), &GetDepthReq{Symbol: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbol)
 	})
@@ -350,7 +351,7 @@ func TestGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetDepth(&GetDepthReq{Symbol: "600000.SH"})
+		resp, err := tf.GetDepth(context.Background(), &GetDepthReq{Symbol: "600000.SH"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -386,7 +387,7 @@ func TestGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetDepth(&GetDepthReq{Symbol: "AAPL.US"})
+		resp, err := tf.GetDepth(context.Background(), &GetDepthReq{Symbol: "AAPL.US"})
 		require.NoError(t, err)
 		require.NotNil(t, resp.Data)
 		assert.Equal(t, "AAPL.US", resp.Data.Symbol)
@@ -409,7 +410,7 @@ func TestGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetDepth(&GetDepthReq{Symbol: "BAD"})
+		resp, err := tf.GetDepth(context.Background(), &GetDepthReq{Symbol: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -426,7 +427,7 @@ func TestGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetDepth(&GetDepthReq{Symbol: "600000.SH"})
+		resp, err := tf.GetDepth(context.Background(), &GetDepthReq{Symbol: "600000.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -435,14 +436,14 @@ func TestGetDepth(t *testing.T) {
 func TestBatchGetDepth(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetDepth(nil)
+		resp, err := tf.BatchGetDepth(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetDepth(&BatchGetDepthReq{Symbols: ""})
+		resp, err := tf.BatchGetDepth(context.Background(), &BatchGetDepthReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -476,7 +477,7 @@ func TestBatchGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetDepth(&BatchGetDepthReq{Symbols: symbols})
+		resp, err := tf.BatchGetDepth(context.Background(), &BatchGetDepthReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -528,7 +529,7 @@ func TestBatchGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetDepth(&BatchGetDepthReq{Symbols: symbols})
+		resp, err := tf.BatchGetDepth(context.Background(), &BatchGetDepthReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.Len(t, resp.Data, 3)
 		assert.Equal(t, RegionCN, resp.Data["600519.SH"].Region)
@@ -550,7 +551,7 @@ func TestBatchGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetDepth(&BatchGetDepthReq{Symbols: "BAD"})
+		resp, err := tf.BatchGetDepth(context.Background(), &BatchGetDepthReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -567,7 +568,7 @@ func TestBatchGetDepth(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetDepth(&BatchGetDepthReq{Symbols: "600000.SH"})
+		resp, err := tf.BatchGetDepth(context.Background(), &BatchGetDepthReq{Symbols: "600000.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})

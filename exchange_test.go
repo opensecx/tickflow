@@ -1,6 +1,7 @@
 package tickflow
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -13,7 +14,7 @@ import (
 func TestGetExchangeInstrument(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetExchangeInstrument(nil)
+		resp, err := tf.GetExchangeInstrument(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
@@ -21,15 +22,15 @@ func TestGetExchangeInstrument(t *testing.T) {
 	t.Run("invalid exchange returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
 
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "XX"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "XX"})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrInvalidExchange)
 
-		resp, err = tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "us"})
+		resp, err = tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "us"})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrInvalidExchange)
 
-		resp, err = tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: ""})
+		resp, err = tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrInvalidExchange)
 	})
@@ -72,7 +73,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "US"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "US"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, "US", resp.Exchange)
@@ -103,7 +104,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "US", Type: "etf"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "US", Type: "etf"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, 1, resp.Count)
@@ -138,7 +139,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "HK"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "HK"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, "HK", resp.Exchange)
@@ -178,7 +179,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "SH"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "SH"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, "SH", resp.Exchange)
@@ -205,7 +206,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "US"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -222,7 +223,7 @@ func TestGetExchangeInstrument(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetExchangeInstrument(&GetExchangeInstrumentReq{Exchange: "US"})
+		resp, err := tf.GetExchangeInstrument(context.Background(), &GetExchangeInstrumentReq{Exchange: "US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})

@@ -86,7 +86,7 @@ type GetKlineResp struct {
 // count 可选，默认100，最大10000
 // start_time / end_time 可选，毫秒时间戳
 // adjust 可选: forward, backward, forward_additive, backward_additive, none
-func (tf *TickFlow) GetKline(req *GetKlineReq) (resp *GetKlineResp, err error) {
+func (tf *TickFlow) GetKline(ctx context.Context, req *GetKlineReq) (resp *GetKlineResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -118,7 +118,7 @@ func (tf *TickFlow) GetKline(req *GetKlineReq) (resp *GetKlineResp, err error) {
 		rb = rb.Param("adjust", string(req.Adjust))
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetKline] fail to request", "reqURL", reqURL, "symbol", req.Symbol, "error", err)
 		return nil, err
@@ -149,7 +149,7 @@ type BatchGetKlineResp struct {
 // count 可选，默认100，最大10000
 // start_time / end_time 可选，毫秒时间戳
 // adjust 可选: forward, backward, forward_additive, backward_additive, none
-func (tf *TickFlow) BatchGetKline(req *BatchGetKlineReq) (resp *BatchGetKlineResp, err error) {
+func (tf *TickFlow) BatchGetKline(ctx context.Context, req *BatchGetKlineReq) (resp *BatchGetKlineResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -181,7 +181,7 @@ func (tf *TickFlow) BatchGetKline(req *BatchGetKlineReq) (resp *BatchGetKlineRes
 		rb = rb.Param("adjust", string(req.Adjust))
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[BatchGetKline] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
@@ -212,7 +212,7 @@ type GetExFactorResp struct {
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/k%E7%BA%BF%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E9%99%A4%E6%9D%83%E5%9B%A0%E5%AD%90
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_time / end_time 可选，毫秒时间戳
-func (tf *TickFlow) GetExFactor(req *GetExFactorReq) (resp *GetExFactorResp, err error) {
+func (tf *TickFlow) GetExFactor(ctx context.Context, req *GetExFactorReq) (resp *GetExFactorResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -235,7 +235,7 @@ func (tf *TickFlow) GetExFactor(req *GetExFactorReq) (resp *GetExFactorResp, err
 		rb = rb.ParamInt("end_time", int(*req.EndTime))
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetExFactor] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err

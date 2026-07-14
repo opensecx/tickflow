@@ -1,6 +1,7 @@
 package tickflow
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -18,14 +19,14 @@ func int64Ptr(i int64) *int64 {
 func TestGetKline(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetKline(nil)
+		resp, err := tf.GetKline(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbol returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: ""})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbol)
 	})
@@ -47,7 +48,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "AAPL.US"})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "AAPL.US"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -82,7 +83,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{
 			Symbol:    "600000.SH",
 			Period:    Period1d,
 			Count:     3,
@@ -115,7 +116,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "00700.HK", Period: Period1m})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "00700.HK", Period: Period1m})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data.Timestamp, 3)
@@ -142,7 +143,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "IF2401.CFE"})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "IF2401.CFE"})
 		require.NoError(t, err)
 		require.NotNil(t, resp.Data)
 		assert.Equal(t, []float64{2980.0}, resp.Data.PrevClose)
@@ -166,7 +167,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "AAPL.US", Period: "2d"})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "AAPL.US", Period: "2d"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -183,7 +184,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "AAPL.US"})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "AAPL.US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -200,7 +201,7 @@ func TestGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetKline(&GetKlineReq{Symbol: "INVALID.US"})
+		resp, err := tf.GetKline(context.Background(), &GetKlineReq{Symbol: "INVALID.US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -209,14 +210,14 @@ func TestGetKline(t *testing.T) {
 func TestBatchGetKline(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetKline(nil)
+		resp, err := tf.BatchGetKline(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetKline(&BatchGetKlineReq{Symbols: ""})
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -260,7 +261,7 @@ func TestBatchGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetKline(&BatchGetKlineReq{Symbols: symbols})
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -318,7 +319,7 @@ func TestBatchGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetKline(&BatchGetKlineReq{
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{
 			Symbols: symbols,
 			Period:  Period1d,
 			Count:   1,
@@ -345,7 +346,7 @@ func TestBatchGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetKline(&BatchGetKlineReq{Symbols: "BADFORMAT"})
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{Symbols: "BADFORMAT"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -362,7 +363,7 @@ func TestBatchGetKline(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetKline(&BatchGetKlineReq{Symbols: "AAPL.US"})
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{Symbols: "AAPL.US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -371,14 +372,14 @@ func TestBatchGetKline(t *testing.T) {
 func TestGetExFactor(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetExFactor(nil)
+		resp, err := tf.GetExFactor(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{Symbols: ""})
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -401,7 +402,7 @@ func TestGetExFactor(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{Symbols: symbols})
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -441,7 +442,7 @@ func TestGetExFactor(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{
 			Symbols:   symbols,
 			StartTime: int64Ptr(1700000000000),
 			EndTime:   int64Ptr(1720000000000),
@@ -470,7 +471,7 @@ func TestGetExFactor(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{Symbols: "00700.HK"})
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{Symbols: "00700.HK"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.Len(t, resp.Data, 1)
@@ -496,7 +497,7 @@ func TestGetExFactor(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{Symbols: "BADFORMAT"})
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{Symbols: "BADFORMAT"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -513,7 +514,7 @@ func TestGetExFactor(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetExFactor(&GetExFactorReq{Symbols: "600519.SH"})
+		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})

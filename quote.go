@@ -65,7 +65,7 @@ type GetQuoteResp struct {
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%9F%A5%E8%AF%A2%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85
 // symbols 可选，逗号分隔，例如 "600000.SH,000001.SZ"
 // universes 可选，逗号分隔，例如 "CN_Equity_A,CN_ETF"
-func (tf *TickFlow) GetQuote(req *GetQuoteReq) (resp *GetQuoteResp, err error) {
+func (tf *TickFlow) GetQuote(ctx context.Context, req *GetQuoteReq) (resp *GetQuoteResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -82,7 +82,7 @@ func (tf *TickFlow) GetQuote(req *GetQuoteReq) (resp *GetQuoteResp, err error) {
 		rb = rb.Param("universes", req.Universes)
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetQuote] fail to request", "reqURL", reqURL, "error", err)
 		return nil, err
@@ -106,7 +106,7 @@ type BatchGetQuoteResp struct {
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85
 // symbols 标的代码列表
 // universes 标的池 ID 列表
-func (tf *TickFlow) BatchGetQuote(req *BatchGetQuoteReq) (resp *BatchGetQuoteResp, err error) {
+func (tf *TickFlow) BatchGetQuote(ctx context.Context, req *BatchGetQuoteReq) (resp *BatchGetQuoteResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -119,7 +119,7 @@ func (tf *TickFlow) BatchGetQuote(req *BatchGetQuoteReq) (resp *BatchGetQuoteRes
 		ContentType("application/json").
 		BodyJSON(req).
 		ToJSON(&resp).
-		Fetch(context.Background())
+		Fetch(ctx)
 	if err != nil {
 		slog.Error("[BatchGetQuote] fail to request", "reqURL", reqURL, "error", err)
 		return nil, err
@@ -154,7 +154,7 @@ type GetDepthReq struct {
 // GetDepth 查询市场深度（五档行情）
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%9F%A5%E8%AF%A2%E5%B8%82%E5%9C%BA%E6%B7%B1%E5%BA%A6%EF%BC%88%E4%BA%94%E6%A1%A3%E8%A1%8C%E6%83%85%EF%BC%89
 // symbol 必填，单个标的，例如 "600000.SH"
-func (tf *TickFlow) GetDepth(req *GetDepthReq) (resp *GetDepthResp, err error) {
+func (tf *TickFlow) GetDepth(ctx context.Context, req *GetDepthReq) (resp *GetDepthResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -170,7 +170,7 @@ func (tf *TickFlow) GetDepth(req *GetDepthReq) (resp *GetDepthResp, err error) {
 		Header("x-api-key", tf.xApiKey).
 		Param("symbol", req.Symbol).
 		ToJSON(&resp).
-		Fetch(context.Background())
+		Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetDepth] fail to request", "reqURL", reqURL, "symbol", req.Symbol, "error", err)
 		return nil, err
@@ -192,7 +192,7 @@ type BatchGetDepthResp struct {
 // BatchGetDepth 批量查询市场深度（五档行情）
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E5%B8%82%E5%9C%BA%E6%B7%B1%E5%BA%A6%EF%BC%88%E4%BA%94%E6%A1%A3%E8%A1%8C%E6%83%85%EF%BC%89
 // symbols 必填，逗号分隔，例如 "600000.SH,000001.SZ"
-func (tf *TickFlow) BatchGetDepth(req *BatchGetDepthReq) (resp *BatchGetDepthResp, err error) {
+func (tf *TickFlow) BatchGetDepth(ctx context.Context, req *BatchGetDepthReq) (resp *BatchGetDepthResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -208,7 +208,7 @@ func (tf *TickFlow) BatchGetDepth(req *BatchGetDepthReq) (resp *BatchGetDepthRes
 		Header("x-api-key", tf.xApiKey).
 		Param("symbols", req.Symbols).
 		ToJSON(&resp).
-		Fetch(context.Background())
+		Fetch(ctx)
 	if err != nil {
 		slog.Error("[BatchGetDepth] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err

@@ -25,7 +25,7 @@ type GetExchangeInstrumentResp struct {
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E4%BA%A4%E6%98%93%E6%89%80/%E8%8E%B7%E5%8F%96%E4%BA%A4%E6%98%93%E6%89%80%E7%9A%84%E6%A0%87%E7%9A%84%E5%88%97%E8%A1%A8
 // exchange 可选值: US, SH, SZ, BJ, HK
 // instrumentType 可选，用于按类型过滤，传空字符串表示不过滤
-func (tf *TickFlow) GetExchangeInstrument(req *GetExchangeInstrumentReq) (resp *GetExchangeInstrumentResp, err error) {
+func (tf *TickFlow) GetExchangeInstrument(ctx context.Context, req *GetExchangeInstrumentReq) (resp *GetExchangeInstrumentResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -46,7 +46,7 @@ func (tf *TickFlow) GetExchangeInstrument(req *GetExchangeInstrumentReq) (resp *
 		rb = rb.Param("type", req.Type)
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetExchangeInstrument] fail to request", "reqURL", reqURL, "error", err)
 		return nil, err

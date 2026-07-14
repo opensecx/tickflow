@@ -55,7 +55,7 @@ type GetBalanceSheetResp struct {
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_date / end_date 可选，YYYY-MM-DD
 // latest 可选，仅返回最新一期
-func (tf *TickFlow) GetBalanceSheet(req *FinancialReq) (resp *GetBalanceSheetResp, err error) {
+func (tf *TickFlow) GetBalanceSheet(ctx context.Context, req *FinancialReq) (resp *GetBalanceSheetResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -81,7 +81,7 @@ func (tf *TickFlow) GetBalanceSheet(req *FinancialReq) (resp *GetBalanceSheetRes
 		rb = rb.Param("latest", "true")
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetBalanceSheet] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
@@ -113,7 +113,7 @@ type GetCashFlowResp struct {
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_date / end_date 可选，YYYY-MM-DD
 // latest 可选，仅返回最新一期
-func (tf *TickFlow) GetCashFlow(req *FinancialReq) (resp *GetCashFlowResp, err error) {
+func (tf *TickFlow) GetCashFlow(ctx context.Context, req *FinancialReq) (resp *GetCashFlowResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -139,7 +139,7 @@ func (tf *TickFlow) GetCashFlow(req *FinancialReq) (resp *GetCashFlowResp, err e
 		rb = rb.Param("latest", "true")
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetCashFlow] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
@@ -182,7 +182,7 @@ type GetIncomeResp struct {
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_date / end_date 可选，YYYY-MM-DD
 // latest 可选，仅返回最新一期
-func (tf *TickFlow) GetIncome(req *FinancialReq) (resp *GetIncomeResp, err error) {
+func (tf *TickFlow) GetIncome(ctx context.Context, req *FinancialReq) (resp *GetIncomeResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -208,7 +208,7 @@ func (tf *TickFlow) GetIncome(req *FinancialReq) (resp *GetIncomeResp, err error
 		rb = rb.Param("latest", "true")
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetIncome] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
@@ -249,7 +249,7 @@ type GetMetricsResp struct {
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_date / end_date 可选，YYYY-MM-DD
 // latest 可选，仅返回最新一期
-func (tf *TickFlow) GetMetrics(req *FinancialReq) (resp *GetMetricsResp, err error) {
+func (tf *TickFlow) GetMetrics(ctx context.Context, req *FinancialReq) (resp *GetMetricsResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -275,7 +275,7 @@ func (tf *TickFlow) GetMetrics(req *FinancialReq) (resp *GetMetricsResp, err err
 		rb = rb.Param("latest", "true")
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetMetrics] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
@@ -304,7 +304,7 @@ type GetShareResp struct {
 // symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
 // start_date / end_date 可选，YYYY-MM-DD
 // latest 可选，仅返回最新一期
-func (tf *TickFlow) GetShare(req *FinancialReq) (resp *GetShareResp, err error) {
+func (tf *TickFlow) GetShare(ctx context.Context, req *FinancialReq) (resp *GetShareResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -330,7 +330,7 @@ func (tf *TickFlow) GetShare(req *FinancialReq) (resp *GetShareResp, err error) 
 		rb = rb.Param("latest", "true")
 	}
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetShare] fail to request", "reqURL", reqURL, "symbols", req.Symbols, "error", err)
 		return nil, err
