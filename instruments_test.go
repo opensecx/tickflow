@@ -1,6 +1,7 @@
 package tickflow
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -47,7 +48,7 @@ func TestIsValidExchange(t *testing.T) {
 func TestGetInstrumentMetaData(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetInstrumentMetaData(nil)
+		resp, err := tf.GetInstrumentMetaData(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
@@ -63,7 +64,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: ""})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: ""})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, 0, resp.Count)
@@ -95,7 +96,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: "AAPL.US"})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: "AAPL.US"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, 1, resp.Count)
@@ -177,7 +178,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: symbols})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Equal(t, 4, resp.Count)
@@ -213,7 +214,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: "SPY.US"})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: "SPY.US"})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 1)
@@ -237,7 +238,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: "INVALID"})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: "INVALID"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -254,7 +255,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetInstrumentMetaData(&GetInstrumentMetaDataReq{Symbols: "AAPL.US"})
+		resp, err := tf.GetInstrumentMetaData(context.Background(), &GetInstrumentMetaDataReq{Symbols: "AAPL.US"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -263,21 +264,21 @@ func TestGetInstrumentMetaData(t *testing.T) {
 func TestBatchGetInstrumentMetaData(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetInstrumentMetaData(nil)
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: []string{}})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: []string{}})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
 
 	t.Run("nil symbols slice returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: nil})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: nil})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -288,7 +289,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		for i := range symbols {
 			symbols[i] = "TEST.SH"
 		}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: symbols})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: symbols})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrTooManySymbols)
 	})
@@ -306,7 +307,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: symbols})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 	})
@@ -380,7 +381,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: symbols})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 4)
@@ -421,7 +422,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: symbols})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 1)
@@ -447,7 +448,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: []string{"INVALID"}})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: []string{"INVALID"}})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -464,7 +465,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.BatchGetInstrumentMetaData(&BatchGetInstrumentMetaDataReq{Symbols: []string{"AAPL.US"}})
+		resp, err := tf.BatchGetInstrumentMetaData(context.Background(), &BatchGetInstrumentMetaDataReq{Symbols: []string{"AAPL.US"}})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})

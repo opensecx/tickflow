@@ -1,6 +1,7 @@
 package tickflow
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,14 +16,14 @@ func TestGetBalanceSheet(t *testing.T) {
 
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetBalanceSheet(nil)
+		resp, err := tf.GetBalanceSheet(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetBalanceSheet(&FinancialReq{Symbols: ""})
+		resp, err := tf.GetBalanceSheet(context.Background(), &FinancialReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -62,7 +63,7 @@ func TestGetBalanceSheet(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetBalanceSheet(req)
+		resp, err := tf.GetBalanceSheet(context.Background(), req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -102,7 +103,7 @@ func TestGetBalanceSheet(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetBalanceSheet(&FinancialReq{
+		resp, err := tf.GetBalanceSheet(context.Background(), &FinancialReq{
 			Symbols:   "AAPL.US",
 			StartDate: "2024-01-01",
 			EndDate:   "2024-12-31",
@@ -132,7 +133,7 @@ func TestGetBalanceSheet(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetBalanceSheet(&FinancialReq{Symbols: symbols})
+		resp, err := tf.GetBalanceSheet(context.Background(), &FinancialReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 2)
@@ -152,7 +153,7 @@ func TestGetBalanceSheet(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetBalanceSheet(&FinancialReq{Symbols: "BAD"})
+		resp, err := tf.GetBalanceSheet(context.Background(), &FinancialReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -169,7 +170,7 @@ func TestGetBalanceSheet(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetBalanceSheet(&FinancialReq{Symbols: "600519.SH"})
+		resp, err := tf.GetBalanceSheet(context.Background(), &FinancialReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -180,14 +181,14 @@ func TestGetCashFlow(t *testing.T) {
 
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetCashFlow(nil)
+		resp, err := tf.GetCashFlow(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetCashFlow(&FinancialReq{Symbols: ""})
+		resp, err := tf.GetCashFlow(context.Background(), &FinancialReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -213,7 +214,7 @@ func TestGetCashFlow(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetCashFlow(req)
+		resp, err := tf.GetCashFlow(context.Background(), req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -248,7 +249,7 @@ func TestGetCashFlow(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetCashFlow(&FinancialReq{
+		resp, err := tf.GetCashFlow(context.Background(), &FinancialReq{
 			Symbols: "AAPL.US",
 			Latest:  true,
 		})
@@ -272,7 +273,7 @@ func TestGetCashFlow(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetCashFlow(&FinancialReq{Symbols: "BAD"})
+		resp, err := tf.GetCashFlow(context.Background(), &FinancialReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -289,7 +290,7 @@ func TestGetCashFlow(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetCashFlow(&FinancialReq{Symbols: "600519.SH"})
+		resp, err := tf.GetCashFlow(context.Background(), &FinancialReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -300,14 +301,14 @@ func TestGetIncome(t *testing.T) {
 
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetIncome(nil)
+		resp, err := tf.GetIncome(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetIncome(&FinancialReq{Symbols: ""})
+		resp, err := tf.GetIncome(context.Background(), &FinancialReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -344,7 +345,7 @@ func TestGetIncome(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetIncome(req)
+		resp, err := tf.GetIncome(context.Background(), req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -377,7 +378,7 @@ func TestGetIncome(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetIncome(&FinancialReq{
+		resp, err := tf.GetIncome(context.Background(), &FinancialReq{
 			Symbols:   "AAPL.US",
 			StartDate: "2024-01-01",
 			EndDate:   "2024-12-31",
@@ -402,7 +403,7 @@ func TestGetIncome(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetIncome(&FinancialReq{Symbols: "BAD"})
+		resp, err := tf.GetIncome(context.Background(), &FinancialReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -419,7 +420,7 @@ func TestGetIncome(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetIncome(&FinancialReq{Symbols: "600519.SH"})
+		resp, err := tf.GetIncome(context.Background(), &FinancialReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -430,14 +431,14 @@ func TestGetMetrics(t *testing.T) {
 
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetMetrics(nil)
+		resp, err := tf.GetMetrics(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetMetrics(&FinancialReq{Symbols: ""})
+		resp, err := tf.GetMetrics(context.Background(), &FinancialReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -472,7 +473,7 @@ func TestGetMetrics(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetMetrics(req)
+		resp, err := tf.GetMetrics(context.Background(), req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -509,7 +510,7 @@ func TestGetMetrics(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetMetrics(&FinancialReq{
+		resp, err := tf.GetMetrics(context.Background(), &FinancialReq{
 			Symbols: "AAPL.US",
 			Latest:  true,
 		})
@@ -533,7 +534,7 @@ func TestGetMetrics(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetMetrics(&FinancialReq{Symbols: "BAD"})
+		resp, err := tf.GetMetrics(context.Background(), &FinancialReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -550,7 +551,7 @@ func TestGetMetrics(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetMetrics(&FinancialReq{Symbols: "600519.SH"})
+		resp, err := tf.GetMetrics(context.Background(), &FinancialReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -561,14 +562,14 @@ func TestGetShare(t *testing.T) {
 
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetShare(nil)
+		resp, err := tf.GetShare(context.Background(), nil)
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrNilReq)
 	})
 
 	t.Run("empty symbols returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
-		resp, err := tf.GetShare(&FinancialReq{Symbols: ""})
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{Symbols: ""})
 		assert.Nil(t, resp)
 		assert.ErrorIs(t, err, ErrEmptySymbols)
 	})
@@ -597,7 +598,7 @@ func TestGetShare(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetShare(req)
+		resp, err := tf.GetShare(context.Background(), req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		require.NotNil(t, resp.Data)
@@ -633,7 +634,7 @@ func TestGetShare(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetShare(&FinancialReq{
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{
 			Symbols: "AAPL.US",
 			Latest:  true,
 		})
@@ -662,7 +663,7 @@ func TestGetShare(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetShare(&FinancialReq{Symbols: symbols})
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{Symbols: symbols})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 2)
@@ -682,7 +683,7 @@ func TestGetShare(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
-		resp, err := tf.GetShare(&FinancialReq{Symbols: "BAD"})
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{Symbols: "BAD"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})
@@ -699,7 +700,7 @@ func TestGetShare(t *testing.T) {
 		defer ts.Close()
 
 		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
-		resp, err := tf.GetShare(&FinancialReq{Symbols: "600519.SH"})
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{Symbols: "600519.SH"})
 		assert.Error(t, err)
 		assert.Nil(t, resp)
 	})

@@ -40,7 +40,7 @@ type GetInstrumentMetaDataResp struct {
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E6%A0%87%E7%9A%84/%E6%9F%A5%E8%AF%A2%E6%A0%87%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AE
 // exchange 可选值: US, SH, SZ, BJ, HK
 // instrumentType 可选，用于按类型过滤，传空字符串表示不过滤
-func (tf *TickFlow) GetInstrumentMetaData(req *GetInstrumentMetaDataReq) (resp *GetInstrumentMetaDataResp, err error) {
+func (tf *TickFlow) GetInstrumentMetaData(ctx context.Context, req *GetInstrumentMetaDataReq) (resp *GetInstrumentMetaDataResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -50,7 +50,7 @@ func (tf *TickFlow) GetInstrumentMetaData(req *GetInstrumentMetaDataReq) (resp *
 		URL(reqURL).
 		Header("x-api-key", tf.xApiKey)
 
-	err = rb.ToJSON(&resp).Fetch(context.Background())
+	err = rb.ToJSON(&resp).Fetch(ctx)
 	if err != nil {
 		slog.Error("[GetInstrumentMetaData] fail to request", "reqURL", reqURL, "error", err)
 		return nil, err
@@ -72,7 +72,7 @@ type BatchGetInstrumentMetaDataResp struct {
 // BatchGetInstrumentMetaData 批量查询标的元数据
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E6%A0%87%E7%9A%84/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E6%A0%87%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AE
 // symbols 标的代码列表，格式为 "代码.交易所"（如 "600000.SH"、"AAPL.US"），最多 1000 个
-func (tf *TickFlow) BatchGetInstrumentMetaData(req *BatchGetInstrumentMetaDataReq) (resp *BatchGetInstrumentMetaDataResp, err error) {
+func (tf *TickFlow) BatchGetInstrumentMetaData(ctx context.Context, req *BatchGetInstrumentMetaDataReq) (resp *BatchGetInstrumentMetaDataResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
 	}
@@ -97,7 +97,7 @@ func (tf *TickFlow) BatchGetInstrumentMetaData(req *BatchGetInstrumentMetaDataRe
 		ContentType("application/json").
 		BodyJSON(req).
 		ToJSON(&resp).
-		Fetch(context.Background())
+		Fetch(ctx)
 	if err != nil {
 		slog.Error("[BatchGetInstrumentMetaData] fail to request", "reqURL", reqURL, "error", err)
 		return nil, err
