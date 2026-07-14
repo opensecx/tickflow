@@ -228,3 +228,77 @@ func TestGetExchangeInstrument(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 }
+
+func TestGetExchange(t *testing.T) {
+	t.Run("successful query", func(t *testing.T) {
+		expectedResp := &GetExchangeResp{
+			Data: []ExchangeInfo{
+				{Exchange: "SH", Region: "CN", Count: 2000},
+				{Exchange: "SZ", Region: "CN", Count: 2500},
+				{Exchange: "BJ", Region: "CN", Count: 200},
+				{Exchange: "HK", Region: "HK", Count: 2500},
+				{Exchange: "US", Region: "US", Count: 6000},
+			},
+		}
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, http.MethodGet, r.Method)
+			assert.Equal(t, "/v1/exchanges", r.URL.Path)
+			assert.Equal(t, "test-key", r.Header.Get("x-api-key"))
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			err := json.NewEncoder(w).Encode(expectedResp)
+			assert.Nil(t, err)
+		}))
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetExchange(context.Background())
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		require.Len(t, resp.Data, 5)
+
+		assert.Equal(t, "SH", resp.Data[0].Exchange)
+		assert.Equal(t, "CN", resp.Data[0].Region)
+		assert.Equal(t, 2000, resp.Data[0].Count)
+
+		assert.Equal(t, "US", resp.Data[4].Exchange)
+		assert.Equal(t, "US", resp.Data[4].Region)
+		assert.Equal(t, 6000, resp.Data[4].Count)
+	})
+
+	t.Run("server error response", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+			err := json.NewEncoder(w).Encode(ApiError{
+				Code:    "INTERNAL_ERROR",
+				Message: "Internal server error",
+			})
+			assert.Nil(t, err)
+		}))
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetExchange(context.Background())
+		assert.Error(t, err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("401 unauthorized", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusUnauthorized)
+			err := json.NewEncoder(w).Encode(ApiError{
+				Code:    "AUTH_FAILED",
+				Message: "Invalid API key",
+			})
+			assert.Nil(t, err)
+		}))
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "bad-key", baseURL: ts.URL}
+		resp, err := tf.GetExchange(context.Background())
+		assert.Error(t, err)
+		assert.Nil(t, resp)
+	})
+}
