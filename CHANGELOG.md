@@ -5,6 +5,7 @@
 1. 新增实时行情相关功能：`GetQuote` / `BatchGetQuote` / `GetDepth` / `BatchGetDepth`
 2. 函数参数新增 context.Context
 3. 新增标的池相关接口：`GetUniverse` / `BatchGetUniverse` / `GetUniverseDetail`
+4. 新增 `GetExchange` 方法
 
 ## v0.0.2
 

@@ -54,3 +54,34 @@ func (tf *TickFlow) GetExchangeInstrument(ctx context.Context, req *GetExchangeI
 
 	return
 }
+
+// ========== 交易所 ==========
+
+// ExchangeInfo 交易所摘要信息
+type ExchangeInfo struct {
+	Exchange string `json:"exchange"` // 交易所代码
+	Region   string `json:"region"`   // 所属地区
+	Count    int    `json:"count"`    // 标的数量
+}
+
+// GetExchangeResp 获取交易所列表响应
+type GetExchangeResp struct {
+	Data []ExchangeInfo `json:"data"` // 交易所列表
+}
+
+// GetExchange 获取交易所列表
+// api-url: https://docs.tickflow.org/zh-hans/api-reference/%E4%BA%A4%E6%98%93%E6%89%80/%E8%8E%B7%E5%8F%96%E4%BA%A4%E6%98%93%E6%89%80%E5%88%97%E8%A1%A8
+func (tf *TickFlow) GetExchange(ctx context.Context) (resp *GetExchangeResp, err error) {
+	reqURL := fmt.Sprintf("%s/v1/exchanges", tf.baseURL)
+	err = requests.
+		URL(reqURL).
+		Header("x-api-key", tf.xApiKey).
+		ToJSON(&resp).
+		Fetch(ctx)
+	if err != nil {
+		slog.Error("[GetExchange] fail to request", "reqURL", reqURL, "error", err)
+		return nil, err
+	}
+
+	return
+}
