@@ -10,7 +10,7 @@ import (
 
 // ========== 公共请求类型 ==========
 
-// FinancialReq 财务数据公共请求参数
+// FinancialReq contains the common request parameters for financial statement queries.
 type FinancialReq struct {
 	Symbols   string `json:"symbols"`              // 逗号分隔的标的代码，如 "600519.SH,000001.SZ"
 	StartDate string `json:"start_date,omitempty"` // 起始日期（可选，YYYY-MM-DD），筛选 period_end >= start_date
@@ -20,7 +20,7 @@ type FinancialReq struct {
 
 // ========== 资产负债表 ==========
 
-// BalanceSheetRecord 资产负债表单期记录
+// BalanceSheetRecord represents a single-period balance sheet record.
 type BalanceSheetRecord struct {
 	PeriodEnd                  string  `json:"period_end"`                    // 报告期末日期 (YYYY-MM-DD)
 	AnnounceDate               string  `json:"announce_date"`                 // 公告日期 (YYYY-MM-DD)
@@ -45,16 +45,18 @@ type BalanceSheetRecord struct {
 	RetainedEarnings           float64 `json:"retained_earnings"`             // 未分配利润
 }
 
-// GetBalanceSheetResp 获取资产负债表响应
+// GetBalanceSheetResp is the response from GetBalanceSheet.
 type GetBalanceSheetResp struct {
 	Data map[string][]BalanceSheetRecord `json:"data"` // key 为标的代码
 }
 
-// GetBalanceSheet 获取资产负债表
+// GetBalanceSheet returns balance sheet data for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_date / end_date are optional, YYYY-MM-DD.
+// latest is optional; when true, only the most recent period is returned.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E8%B4%A2%E5%8A%A1%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E8%B5%84%E4%BA%A7%E8%B4%9F%E5%80%BA%E8%A1%A8
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_date / end_date 可选，YYYY-MM-DD
-// latest 可选，仅返回最新一期
 func (tf *TickFlow) GetBalanceSheet(ctx context.Context, req *FinancialReq) (resp *GetBalanceSheetResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -92,7 +94,7 @@ func (tf *TickFlow) GetBalanceSheet(ctx context.Context, req *FinancialReq) (res
 
 // ========== 现金流量表 ==========
 
-// CashFlowRecord 现金流量表单期记录
+// CashFlowRecord represents a single-period cash flow record.
 type CashFlowRecord struct {
 	PeriodEnd            string  `json:"period_end"`              // 报告期末日期 (YYYY-MM-DD)
 	AnnounceDate         string  `json:"announce_date"`           // 公告日期 (YYYY-MM-DD)
@@ -103,16 +105,18 @@ type CashFlowRecord struct {
 	NetCashChange        float64 `json:"net_cash_change"`         // 现金及现金等价物净增加额
 }
 
-// GetCashFlowResp 获取现金流量表响应
+// GetCashFlowResp is the response from GetCashFlow.
 type GetCashFlowResp struct {
 	Data map[string][]CashFlowRecord `json:"data"` // key 为标的代码
 }
 
-// GetCashFlow 获取现金流量表
+// GetCashFlow returns cash flow statement data for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_date / end_date are optional, YYYY-MM-DD.
+// latest is optional; when true, only the most recent period is returned.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E8%B4%A2%E5%8A%A1%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E7%8E%B0%E9%87%91%E6%B5%81%E9%87%8F%E8%A1%A8
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_date / end_date 可选，YYYY-MM-DD
-// latest 可选，仅返回最新一期
 func (tf *TickFlow) GetCashFlow(ctx context.Context, req *FinancialReq) (resp *GetCashFlowResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -150,7 +154,7 @@ func (tf *TickFlow) GetCashFlow(ctx context.Context, req *FinancialReq) (resp *G
 
 // ========== 利润表 ==========
 
-// IncomeRecord 利润表单期记录
+// IncomeRecord represents a single-period income statement record.
 type IncomeRecord struct {
 	PeriodEnd             string  `json:"period_end"`              // 报告期末日期 (YYYY-MM-DD)
 	AnnounceDate          string  `json:"announce_date"`           // 公告日期 (YYYY-MM-DD)
@@ -172,16 +176,18 @@ type IncomeRecord struct {
 	NonOperatingExpense   float64 `json:"non_operating_expense"`   // 营业外支出
 }
 
-// GetIncomeResp 获取利润表响应
+// GetIncomeResp is the response from GetIncome.
 type GetIncomeResp struct {
 	Data map[string][]IncomeRecord `json:"data"` // key 为标的代码
 }
 
-// GetIncome 获取利润表
+// GetIncome returns income statement data for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_date / end_date are optional, YYYY-MM-DD.
+// latest is optional; when true, only the most recent period is returned.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E8%B4%A2%E5%8A%A1%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E5%88%A9%E6%B6%A6%E8%A1%A8
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_date / end_date 可选，YYYY-MM-DD
-// latest 可选，仅返回最新一期
 func (tf *TickFlow) GetIncome(ctx context.Context, req *FinancialReq) (resp *GetIncomeResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -219,7 +225,8 @@ func (tf *TickFlow) GetIncome(ctx context.Context, req *FinancialReq) (resp *Get
 
 // ========== 核心财务指标 ==========
 
-// MetricsRecord 核心财务指标（每股指标 + 盈利能力 + 成长性 + 偿债能力）
+// MetricsRecord represents a single-period metrics record covering per-share data,
+// profitability, growth, and solvency.
 type MetricsRecord struct {
 	PeriodEnd              string  `json:"period_end"`                // 报告期末日期 (YYYY-MM-DD)
 	AnnounceDate           string  `json:"announce_date"`             // 公告日期 (YYYY-MM-DD)
@@ -239,16 +246,18 @@ type MetricsRecord struct {
 	OperatingCashToRevenue float64 `json:"operating_cash_to_revenue"` // 销售现金比率
 }
 
-// GetMetricsResp 获取核心财务指标响应
+// GetMetricsResp is the response from GetMetrics.
 type GetMetricsResp struct {
 	Data map[string][]MetricsRecord `json:"data"` // key 为标的代码
 }
 
-// GetMetrics 获取核心财务指标
+// GetMetrics returns core financial metrics for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_date / end_date are optional, YYYY-MM-DD.
+// latest is optional; when true, only the most recent period is returned.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E8%B4%A2%E5%8A%A1%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E6%A0%B8%E5%BF%83%E8%B4%A2%E5%8A%A1%E6%8C%87%E6%A0%87
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_date / end_date 可选，YYYY-MM-DD
-// latest 可选，仅返回最新一期
 func (tf *TickFlow) GetMetrics(ctx context.Context, req *FinancialReq) (resp *GetMetricsResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -286,7 +295,7 @@ func (tf *TickFlow) GetMetrics(ctx context.Context, req *FinancialReq) (resp *Ge
 
 // ========== 股本表 ==========
 
-// SharesRecord 股本结构单期记录
+// SharesRecord represents a single-period share structure record.
 type SharesRecord struct {
 	PeriodEnd    string  `json:"period_end"`    // 报告期末日期 (YYYY-MM-DD)
 	AnnounceDate string  `json:"announce_date"` // 公告日期 (YYYY-MM-DD)
@@ -294,16 +303,18 @@ type SharesRecord struct {
 	FloatShares  float64 `json:"float_shares"`  // 流通股本
 }
 
-// GetShareResp 获取股本表响应
+// GetShareResp is the response from GetShare.
 type GetShareResp struct {
 	Data map[string][]SharesRecord `json:"data"` // key 为标的代码
 }
 
-// GetShare 获取股本表
+// GetShare returns share structure data for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_date / end_date are optional, YYYY-MM-DD.
+// latest is optional; when true, only the most recent period is returned.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E8%B4%A2%E5%8A%A1%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E8%82%A1%E6%9C%AC%E8%A1%A8
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_date / end_date 可选，YYYY-MM-DD
-// latest 可选，仅返回最新一期
 func (tf *TickFlow) GetShare(ctx context.Context, req *FinancialReq) (resp *GetShareResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq

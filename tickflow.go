@@ -1,3 +1,19 @@
+// Package tickflow is a Go client library for the TickFlow financial data API
+// (https://api.tickflow.org), providing access to stocks, ETFs, indices, bonds,
+// funds, and options across US, CN, and HK markets.
+//
+// All API endpoints are authenticated via the x-api-key header.
+//
+// Quick start:
+//
+//	client, err := tickflow.NewTickFlow("your-api-key")
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
+//
+//	quotes, err := client.GetQuote(ctx, &tickflow.GetQuoteReq{
+//	    Symbols: "AAPL.US,600000.SH",
+//	})
 package tickflow
 
 import (
@@ -5,23 +21,30 @@ import (
 )
 
 const (
-	// 默认 api 地址
+	// defaultBaseURL is the default base URL for the TickFlow API.
 	defaultBaseURL = "https://api.tickflow.org"
-	// MaxBatchSymbols 批量查询最大标的数量
+	// MaxBatchSymbols is the maximum number of symbols allowed in a single batch request.
 	MaxBatchSymbols = 1000
 )
 
 var (
-	ErrNilReq          = errors.New("nil req")
-	ErrEmptyKey        = errors.New("empty key")
+	// ErrNilReq is returned when a nil request struct is passed to an API method.
+	ErrNilReq = errors.New("nil req")
+	// ErrEmptyKey is returned when an empty API key is provided to NewTickFlow.
+	ErrEmptyKey = errors.New("empty key")
+	// ErrInvalidExchange is returned when an exchange code is not one of the supported values.
 	ErrInvalidExchange = errors.New("invalid exchange, must be one of: US, SH, SZ, BJ, HK")
-	ErrEmptyID         = errors.New("id must not be empty")
-	ErrEmptySymbol     = errors.New("symbol must not be empty")
-	ErrEmptySymbols    = errors.New("symbols must not be empty")
-	ErrTooManySymbols  = errors.New("symbols must not exceed 1000")
+	// ErrEmptyID is returned when an empty ID is passed to an API method that requires one.
+	ErrEmptyID = errors.New("id must not be empty")
+	// ErrEmptySymbol is returned when an empty symbol is passed to an API method that requires one.
+	ErrEmptySymbol = errors.New("symbol must not be empty")
+	// ErrEmptySymbols is returned when an empty symbols list is passed to an API method that requires at least one.
+	ErrEmptySymbols = errors.New("symbols must not be empty")
+	// ErrTooManySymbols is returned when the number of symbols exceeds MaxBatchSymbols.
+	ErrTooManySymbols = errors.New("symbols must not exceed 1000")
 )
 
-// validExchanges 支持的交易所列表
+// validExchanges is the set of supported exchange codes.
 var validExchanges = map[string]bool{
 	"US": true,
 	"SH": true,
@@ -30,13 +53,14 @@ var validExchanges = map[string]bool{
 	"HK": true,
 }
 
-// TickFlow tickflow API 客户端
+// TickFlow is a client for the TickFlow financial data API.
 type TickFlow struct {
 	xApiKey string // http 鉴权key
 	baseURL string // API 基础地址
 }
 
-// NewTickFlow 创建 TickFlow 客户端
+// NewTickFlow creates a new TickFlow client with the given API key.
+// The key is used to authenticate requests via the x-api-key header.
 func NewTickFlow(key string) (*TickFlow, error) {
 	if key == "" {
 		return nil, ErrEmptyKey

@@ -8,7 +8,7 @@ import (
 	"github.com/carlmjohnson/requests"
 )
 
-// Period K线周期
+// Period represents the time interval of a K-line (candlestick) bar.
 type Period string
 
 const (
@@ -25,7 +25,7 @@ const (
 	Period1Y  Period = "1Y"
 )
 
-// AdjustType 复权类型
+// AdjustType represents the price adjustment type used for K-line data.
 type AdjustType string
 
 const (
@@ -36,7 +36,7 @@ const (
 	AdjustTypeNone             AdjustType = "none"
 )
 
-// Kline K线数据点 (OHLCV + 可选扩展字段)
+// Kline represents a single K-line (candlestick) data point with OHLCV and optional fields.
 type Kline struct {
 	Timestamp       int64   `json:"timestamp"`        // 时间戳 (毫秒)
 	Open            float64 `json:"open"`             // 开盘价
@@ -50,7 +50,8 @@ type Kline struct {
 	SettlementPrice float64 `json:"settlement_price"` // 结算价 (可选)
 }
 
-// CompactKlineData 紧凑列式K线数据（用于高效传输）
+// CompactKlineData is a columnar (parallel-slice) representation of K-line data
+// for efficient transfer. Each field is a slice where index i corresponds to bar i.
 type CompactKlineData struct {
 	Timestamp       []int64   `json:"timestamp"`        // 时间戳 (毫秒)
 	Open            []float64 `json:"open"`             // 开盘价
@@ -64,7 +65,7 @@ type CompactKlineData struct {
 	SettlementPrice []float64 `json:"settlement_price"` // 结算价 (可选)
 }
 
-// GetKlineReq 查询K线数据请求
+// GetKlineReq is the request parameters for GetKline.
 type GetKlineReq struct {
 	Symbol    string     `json:"symbol"`               // 标的代码, 例如 "600000.SH"
 	Period    Period     `json:"period,omitempty"`     // K线周期
@@ -74,18 +75,20 @@ type GetKlineReq struct {
 	Adjust    AdjustType `json:"adjust,omitempty"`     // 复权类型
 }
 
-// GetKlineResp 查询K线数据响应
+// GetKlineResp is the response from GetKline.
 type GetKlineResp struct {
 	Data *CompactKlineData `json:"data"` // 紧凑列式K线数据
 }
 
-// GetKline 查询K线数据
+// GetKline returns K-line (candlestick) data for a single symbol.
+//
+// symbol is required, e.g. "600000.SH", "AAPL.US".
+// period is optional; valid values: 1m, 5m, 10m, 15m, 30m, 60m, 1d, 1w, 1M, 1Q, 1Y.
+// count is optional; default 100, maximum 10000.
+// start_time / end_time are optional millisecond timestamps.
+// adjust is optional: forward, backward, forward_additive, backward_additive, none.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/k%E7%BA%BF%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2-k%E7%BA%BF%E6%95%B0%E6%8D%AE
-// symbol 必填，例如 "600000.SH", "AAPL.US"
-// period 可选值: 1m, 5m, 10m, 15m, 30m, 60m, 1d, 1w, 1M, 1Q, 1Y
-// count 可选，默认100，最大10000
-// start_time / end_time 可选，毫秒时间戳
-// adjust 可选: forward, backward, forward_additive, backward_additive, none
 func (tf *TickFlow) GetKline(ctx context.Context, req *GetKlineReq) (resp *GetKlineResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -127,7 +130,7 @@ func (tf *TickFlow) GetKline(ctx context.Context, req *GetKlineReq) (resp *GetKl
 	return
 }
 
-// BatchGetKlineReq 批量查询K线数据请求
+// BatchGetKlineReq is the request parameters for BatchGetKline.
 type BatchGetKlineReq struct {
 	Symbols   string     `json:"symbols"`              // 标的代码，逗号分隔, 例如 "600000.SH,000001.SZ"
 	Period    Period     `json:"period,omitempty"`     // K线周期
@@ -137,18 +140,20 @@ type BatchGetKlineReq struct {
 	Adjust    AdjustType `json:"adjust,omitempty"`     // 复权类型
 }
 
-// BatchGetKlineResp 批量查询K线数据响应
+// BatchGetKlineResp is the response from BatchGetKline.
 type BatchGetKlineResp struct {
 	Data map[string]*CompactKlineData `json:"data"` // key 为标的代码，value 为紧凑列式K线数据
 }
 
-// BatchGetKline 批量查询K线数据
+// BatchGetKline returns K-line data for multiple symbols in a single request.
+//
+// symbols is required, comma-separated, e.g. "600000.SH,000001.SZ".
+// period is optional; valid values: 1m, 5m, 10m, 15m, 30m, 60m, 1d, 1w, 1M, 1Q, 1Y.
+// count is optional; default 100, maximum 10000.
+// start_time / end_time are optional millisecond timestamps.
+// adjust is optional: forward, backward, forward_additive, backward_additive, none.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/k%E7%BA%BF%E6%95%B0%E6%8D%AE/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2-k%E7%BA%BF%E6%95%B0%E6%8D%AE
-// symbols 必填，逗号分隔，例如 "600000.SH,000001.SZ"
-// period 可选值: 1m, 5m, 10m, 15m, 30m, 60m, 1d, 1w, 1M, 1Q, 1Y
-// count 可选，默认100，最大10000
-// start_time / end_time 可选，毫秒时间戳
-// adjust 可选: forward, backward, forward_additive, backward_additive, none
 func (tf *TickFlow) BatchGetKline(ctx context.Context, req *BatchGetKlineReq) (resp *BatchGetKlineResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -190,28 +195,30 @@ func (tf *TickFlow) BatchGetKline(ctx context.Context, req *BatchGetKlineReq) (r
 	return
 }
 
-// ExFactorEntry 单条除权因子
+// ExFactorEntry represents a single ex-factor (dividend/split adjustment) record.
 type ExFactorEntry struct {
 	Timestamp int64   `json:"timestamp"` // 除权日时间戳 (毫秒)
 	ExFactor  float64 `json:"ex_factor"` // 除权因子
 }
 
-// GetExFactorReq 查询除权因子请求
+// GetExFactorReq is the request parameters for GetExFactor.
 type GetExFactorReq struct {
 	Symbols   string `json:"symbols"`              // 逗号分隔的标的代码, 例如 "600519.SH,000001.SZ"
 	StartTime *int64 `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
 	EndTime   *int64 `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
 }
 
-// GetExFactorResp 查询除权因子响应
+// GetExFactorResp is the response from GetExFactor.
 type GetExFactorResp struct {
 	Data map[string][]ExFactorEntry `json:"data"` // key 为标的代码，value 为除权因子列表
 }
 
-// GetExFactor 查询除权因子
+// GetExFactor returns ex-factor (dividend/split adjustment) data for one or more symbols.
+//
+// symbols is required, comma-separated, e.g. "600519.SH,000001.SZ".
+// start_time / end_time are optional millisecond timestamps.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/k%E7%BA%BF%E6%95%B0%E6%8D%AE/%E6%9F%A5%E8%AF%A2%E9%99%A4%E6%9D%83%E5%9B%A0%E5%AD%90
-// symbols 必填，逗号分隔，例如 "600519.SH,000001.SZ"
-// start_time / end_time 可选，毫秒时间戳
 func (tf *TickFlow) GetExFactor(ctx context.Context, req *GetExFactorReq) (resp *GetExFactorResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
