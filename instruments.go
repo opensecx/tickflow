@@ -8,38 +8,38 @@ import (
 	"github.com/carlmjohnson/requests"
 )
 
-// ApiError API 错误响应
+// ApiError represents an error returned by the TickFlow API.
 type ApiError struct {
 	Code    string `json:"code"`    // 错误码
 	Message string `json:"message"` // 错误描述
 	Details string `json:"details"` // 可选调试信息
 }
 
+// Error implements the error interface.
 func (e *ApiError) Error() string {
 	return fmt.Sprintf("tickflow api error [%s]: %s", e.Code, e.Message)
 }
 
-// isValidExchange 校验交易所代码是否合法
+// isValidExchange reports whether the given exchange code is supported.
 func isValidExchange(exchange string) bool {
 	return validExchanges[exchange]
 }
 
-// GetInstrumentMetaDataReq 获取标的元数据请求
+// GetInstrumentMetaDataReq is the request parameters for GetInstrumentMetaData.
 type GetInstrumentMetaDataReq struct {
 	Symbols string `json:"symbols"` // 标的代码 "TSLA.US,600036.SH"
 }
 
-// GetInstrumentMetaDataResp 获取标的元数据响应
+// GetInstrumentMetaDataResp is the response from GetInstrumentMetaData.
 type GetInstrumentMetaDataResp struct {
 	Exchange string       `json:"exchange"` // 交易所代码
 	Count    int          `json:"count"`    // 标的数量
 	Data     []Instrument `json:"data"`     // 标的列表
 }
 
-// GetInstrumentMetaData 获取标的元数据
+// GetInstrumentMetaData returns metadata for one or more instruments specified by symbol.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E6%A0%87%E7%9A%84/%E6%9F%A5%E8%AF%A2%E6%A0%87%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AE
-// exchange 可选值: US, SH, SZ, BJ, HK
-// instrumentType 可选，用于按类型过滤，传空字符串表示不过滤
 func (tf *TickFlow) GetInstrumentMetaData(ctx context.Context, req *GetInstrumentMetaDataReq) (resp *GetInstrumentMetaDataResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -59,19 +59,20 @@ func (tf *TickFlow) GetInstrumentMetaData(ctx context.Context, req *GetInstrumen
 	return
 }
 
-// BatchGetInstrumentMetaDataReq 批量查询标的元数据请求
+// BatchGetInstrumentMetaDataReq is the request parameters for BatchGetInstrumentMetaData.
 type BatchGetInstrumentMetaDataReq struct {
 	Symbols []string `json:"symbols"` // 标的代码列表，最多 1000 个
 }
 
-// BatchGetInstrumentMetaDataResp 批量查询标的元数据响应
+// BatchGetInstrumentMetaDataResp is the response from BatchGetInstrumentMetaData.
 type BatchGetInstrumentMetaDataResp struct {
 	Data []Instrument `json:"data"` // 标的元数据列表
 }
 
-// BatchGetInstrumentMetaData 批量查询标的元数据
+// BatchGetInstrumentMetaData returns metadata for a batch of instrument symbols.
+// The symbols slice must contain at least one symbol and at most MaxBatchSymbols.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E6%A0%87%E7%9A%84/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E6%A0%87%E7%9A%84%E5%85%83%E6%95%B0%E6%8D%AE
-// symbols 标的代码列表，格式为 "代码.交易所"（如 "600000.SH"、"AAPL.US"），最多 1000 个
 func (tf *TickFlow) BatchGetInstrumentMetaData(ctx context.Context, req *BatchGetInstrumentMetaDataReq) (resp *BatchGetInstrumentMetaDataResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq

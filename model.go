@@ -1,19 +1,26 @@
 package tickflow
 
-// InstrumentType 标的类型
+// InstrumentType represents the type of a financial instrument.
 type InstrumentType string
 
 const (
-	InstrumentTypeStock   InstrumentType = "stock"
-	InstrumentTypeETF     InstrumentType = "etf"
-	InstrumentTypeIndex   InstrumentType = "index"
-	InstrumentTypeBond    InstrumentType = "bond"
-	InstrumentTypeFund    InstrumentType = "fund"
+	// InstrumentTypeStock represents a stock (equity).
+	InstrumentTypeStock InstrumentType = "stock"
+	// InstrumentTypeETF represents an exchange-traded fund.
+	InstrumentTypeETF InstrumentType = "etf"
+	// InstrumentTypeIndex represents a market index.
+	InstrumentTypeIndex InstrumentType = "index"
+	// InstrumentTypeBond represents a bond.
+	InstrumentTypeBond InstrumentType = "bond"
+	// InstrumentTypeFund represents a mutual fund.
+	InstrumentTypeFund InstrumentType = "fund"
+	// InstrumentTypeOptions represents options contracts.
 	InstrumentTypeOptions InstrumentType = "options"
-	InstrumentTypeOther   InstrumentType = "other"
+	// InstrumentTypeOther represents an instrument that does not fit the other categories.
+	InstrumentTypeOther InstrumentType = "other"
 )
 
-// InstrumentExt 标的市场特定扩展字段
+// InstrumentExt contains market-specific extension fields for an instrument.
 type InstrumentExt struct {
 	Type        string  `json:"type,omitempty"`         // cn_equity / us_equity / hk_equity
 	FloatShares int64   `json:"float_shares,omitempty"` // 流通股本
@@ -26,7 +33,7 @@ type InstrumentExt struct {
 	LotSize     int     `json:"lot_size,omitempty"`     // 每手股数 (hk_equity)
 }
 
-// Instrument 交易所标的
+// Instrument represents a financial instrument listed on an exchange.
 type Instrument struct {
 	Symbol   string          `json:"symbol"`   // e.g. "600000.SH", "AAPL.US"
 	Exchange string          `json:"exchange"` // e.g. "SH", "US"

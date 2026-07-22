@@ -8,7 +8,7 @@ import (
 	"github.com/carlmjohnson/requests"
 )
 
-// Region 支持的地区/市场
+// Region represents a supported geographic market.
 type Region string
 
 const (
@@ -17,7 +17,7 @@ const (
 	RegionHK Region = "HK"
 )
 
-// SessionStatus 交易时段状态
+// SessionStatus represents the current trading session status of a market.
 type SessionStatus string
 
 const (
@@ -29,12 +29,12 @@ const (
 	SessionLunchBreak SessionStatus = "lunch_break"
 )
 
-// QuoteExtension 地区特定的扩展数据
+// QuoteExtension contains region-specific extension data for a quote.
 type QuoteExtension struct {
 	Type string `json:"type"` // 市场类型标签
 }
 
-// Quote 行情数据
+// Quote represents a real-time market quote for an instrument.
 type Quote struct {
 	Symbol    string          `json:"symbol"`     // 标的代码
 	Timestamp int64           `json:"timestamp"`  // 时间戳 (毫秒)
@@ -50,21 +50,23 @@ type Quote struct {
 	Ext       *QuoteExtension `json:"ext"`        // 扩展数据
 }
 
-// GetQuoteReq 查询实时行情请求
+// GetQuoteReq is the request parameters for GetQuote.
 type GetQuoteReq struct {
 	Symbols   string `json:"symbols"`   // 标的代码，逗号分隔，例如 "600000.SH,000001.SZ"
 	Universes string `json:"universes"` // 标的池 ID，逗号分隔，例如 "CN_Equity_A,CN_ETF"
 }
 
-// GetQuoteResp 查询实时行情响应
+// GetQuoteResp is the response from GetQuote.
 type GetQuoteResp struct {
 	Data []Quote `json:"data"` // 行情数据列表
 }
 
-// GetQuote 查询实时行情
+// GetQuote returns real-time quotes. Either symbols or universes may be provided.
+//
+// symbols is optional, comma-separated, e.g. "600000.SH,000001.SZ".
+// universes is optional, comma-separated, e.g. "CN_Equity_A,CN_ETF".
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%9F%A5%E8%AF%A2%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85
-// symbols 可选，逗号分隔，例如 "600000.SH,000001.SZ"
-// universes 可选，逗号分隔，例如 "CN_Equity_A,CN_ETF"
 func (tf *TickFlow) GetQuote(ctx context.Context, req *GetQuoteReq) (resp *GetQuoteResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -91,21 +93,20 @@ func (tf *TickFlow) GetQuote(ctx context.Context, req *GetQuoteReq) (resp *GetQu
 	return
 }
 
-// BatchGetQuoteReq 批量查询实时行情请求
+// BatchGetQuoteReq is the request parameters for BatchGetQuote.
 type BatchGetQuoteReq struct {
 	Symbols   []string `json:"symbols"`   // 标的代码列表，例如 ["600000.SH", "000001.SZ", "AAPL.US"]
 	Universes []string `json:"universes"` // 标的池 ID 列表，例如 ["CN_Equity_A", "CN_ETF"]
 }
 
-// BatchGetQuoteResp 批量查询实时行情响应
+// BatchGetQuoteResp is the response from BatchGetQuote.
 type BatchGetQuoteResp struct {
 	Data []Quote `json:"data"` // 行情数据列表
 }
 
-// BatchGetQuote 批量查询实时行情
+// BatchGetQuote returns real-time quotes for a batch of symbols or universes.
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85
-// symbols 标的代码列表
-// universes 标的池 ID 列表
 func (tf *TickFlow) BatchGetQuote(ctx context.Context, req *BatchGetQuoteReq) (resp *BatchGetQuoteResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -130,7 +131,7 @@ func (tf *TickFlow) BatchGetQuote(ctx context.Context, req *BatchGetQuoteReq) (r
 
 // ========== 市场深度（五档行情） ==========
 
-// MarketDepth 市场深度（五档行情）
+// MarketDepth represents market depth (level 1, five-level bid/ask) data.
 type MarketDepth struct {
 	Symbol     string    `json:"symbol"`      // 标的代码
 	Timestamp  int64     `json:"timestamp"`   // 时间戳 (毫秒)
@@ -141,19 +142,21 @@ type MarketDepth struct {
 	Region     Region    `json:"region"`      // 地区
 }
 
-// GetDepthResp 查询市场深度响应
-type GetDepthResp struct {
-	Data *MarketDepth `json:"data"` // 市场深度
-}
-
-// GetDepthReq 查询市场深度请求
+// GetDepthReq is the request parameters for GetDepth.
 type GetDepthReq struct {
 	Symbol string `json:"symbol"` // 标的代码，例如 "600000.SH"
 }
 
-// GetDepth 查询市场深度（五档行情）
+// GetDepthResp is the response from GetDepth.
+type GetDepthResp struct {
+	Data *MarketDepth `json:"data"` // 市场深度
+}
+
+// GetDepth returns market depth (five-level bid/ask) for a single symbol.
+//
+// symbol is required, e.g. "600000.SH".
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%9F%A5%E8%AF%A2%E5%B8%82%E5%9C%BA%E6%B7%B1%E5%BA%A6%EF%BC%88%E4%BA%94%E6%A1%A3%E8%A1%8C%E6%83%85%EF%BC%89
-// symbol 必填，单个标的，例如 "600000.SH"
 func (tf *TickFlow) GetDepth(ctx context.Context, req *GetDepthReq) (resp *GetDepthResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq
@@ -179,19 +182,21 @@ func (tf *TickFlow) GetDepth(ctx context.Context, req *GetDepthReq) (resp *GetDe
 	return
 }
 
-// BatchGetDepthReq 批量查询市场深度请求
+// BatchGetDepthReq is the request parameters for BatchGetDepth.
 type BatchGetDepthReq struct {
 	Symbols string `json:"symbols"` // 逗号分隔的标的代码，例如 "600000.SH,000001.SZ"
 }
 
-// BatchGetDepthResp 批量查询市场深度响应
+// BatchGetDepthResp is the response from BatchGetDepth.
 type BatchGetDepthResp struct {
 	Data map[string]*MarketDepth `json:"data"` // key 为标的代码
 }
 
-// BatchGetDepth 批量查询市场深度（五档行情）
+// BatchGetDepth returns market depth (five-level bid/ask) for multiple symbols.
+//
+// symbols is required, comma-separated, e.g. "600000.SH,000001.SZ".
+//
 // api-url: https://docs.tickflow.org/zh-hans/api-reference/%E5%AE%9E%E6%97%B6%E8%A1%8C%E6%83%85/%E6%89%B9%E9%87%8F%E6%9F%A5%E8%AF%A2%E5%B8%82%E5%9C%BA%E6%B7%B1%E5%BA%A6%EF%BC%88%E4%BA%94%E6%A1%A3%E8%A1%8C%E6%83%85%EF%BC%89
-// symbols 必填，逗号分隔，例如 "600000.SH,000001.SZ"
 func (tf *TickFlow) BatchGetDepth(ctx context.Context, req *BatchGetDepthReq) (resp *BatchGetDepthResp, err error) {
 	if req == nil {
 		return nil, ErrNilReq

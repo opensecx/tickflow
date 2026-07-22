@@ -1,5 +1,9 @@
 # TickFlow Changelog
 
+## v0.0.6
+
+1. 补充包级别注释及所有导出类型/方法/常量的 godoc 注释，遵循 Go 官方文档规范，确保 pkg.go.dev 正确渲染
+
 ## v0.0.5
 
 1. 补充单元测试覆盖缺失分支，整体语句覆盖率提升至 100%（`ApiError.Error` / `GetCashFlow` / `GetIncome` / `GetMetrics` / `GetShare` / `BatchGetKline`）
