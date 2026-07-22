@@ -35,11 +35,11 @@ type InstrumentExt struct {
 
 // Instrument represents a financial instrument listed on an exchange.
 type Instrument struct {
-	Symbol   string          `json:"symbol"`   // e.g. "600000.SH", "AAPL.US"
-	Exchange string          `json:"exchange"` // e.g. "SH", "US"
-	Code     string          `json:"code"`     // 交易所原生代码 e.g. "600000", "AAPL"
-	Region   string          `json:"region"`   // 地区: CN, US, HK
-	Name     *string         `json:"name"`     // 可读名称
-	Type     *InstrumentType `json:"type"`     // 标的类型
-	Ext      *InstrumentExt  `json:"ext"`      // 市场特定扩展字段
+	Symbol   string         `json:"symbol"`   // e.g. "600000.SH", "AAPL.US"
+	Exchange string         `json:"exchange"` // e.g. "SH", "US"
+	Code     string         `json:"code"`     // 交易所原生代码 e.g. "600000", "AAPL"
+	Region   string         `json:"region"`   // 地区: CN, US, HK
+	Name     string         `json:"name"`     // 可读名称
+	Type     InstrumentType `json:"type"`     // 标的类型
+	Ext      *InstrumentExt `json:"ext"`      // 市场特定扩展字段
 }

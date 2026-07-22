@@ -1,5 +1,11 @@
 # TickFlow Changelog
 
+## v0.0.7
+
+1. 调整 `Instrument` 结构体字段类型：`Name` 由 `*string` 改为 `string`，`Type` 由 `*InstrumentType` 改为 `InstrumentType`
+2. 调整 `GetExchangeInstrumentResp.Data` 字段类型：由 `[]Instrument` 改为 `[]*Instrument`
+3. 同步修复 `exchange_test.go` 与 `instruments_test.go` 中的用例以匹配上述类型变更
+
 ## v0.0.6
 
 1. 补充包级别注释及所有导出类型/方法/常量的 godoc 注释，遵循 Go 官方文档规范，确保 pkg.go.dev 正确渲染
