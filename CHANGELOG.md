@@ -1,5 +1,9 @@
 # TickFlow Changelog
 
+## v0.0.5
+
+1. 补充单元测试覆盖缺失分支，整体语句覆盖率提升至 100%（`ApiError.Error` / `GetCashFlow` / `GetIncome` / `GetMetrics` / `GetShare` / `BatchGetKline`）
+
 ## v0.0.4
 
 1. 新增 `CLAUDE.md` 仓库工作流与架构说明文档

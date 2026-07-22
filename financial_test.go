@@ -259,6 +259,35 @@ func TestGetCashFlow(t *testing.T) {
 		require.Len(t, records, 1)
 	})
 
+	t.Run("successful query with date range", func(t *testing.T) {
+		expectedResp := &GetCashFlowResp{
+			Data: map[string][]CashFlowRecord{
+				"AAPL.US": {
+					{PeriodEnd: "2024-12-31", NetOperatingCashFlow: 110000000000},
+					{PeriodEnd: "2024-09-30", NetOperatingCashFlow: 100000000000},
+				},
+			},
+		}
+
+		ts := setupFinancialMockServer(t, "/v1/financials/cash-flow", map[string]string{
+			"symbols":    "AAPL.US",
+			"start_date": "2024-01-01",
+			"end_date":   "2024-12-31",
+		}, expectedResp)
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetCashFlow(context.Background(), &FinancialReq{
+			Symbols:   "AAPL.US",
+			StartDate: "2024-01-01",
+			EndDate:   "2024-12-31",
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		records := resp.Data["AAPL.US"]
+		assert.Len(t, records, 2)
+	})
+
 	t.Run("server error response", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, http.MethodGet, r.Method)
@@ -387,6 +416,32 @@ func TestGetIncome(t *testing.T) {
 		require.NotNil(t, resp)
 		records := resp.Data["AAPL.US"]
 		assert.Len(t, records, 2)
+	})
+
+	t.Run("successful query with latest", func(t *testing.T) {
+		expectedResp := &GetIncomeResp{
+			Data: map[string][]IncomeRecord{
+				"AAPL.US": {
+					{PeriodEnd: "2024-12-31", Revenue: 391000000000, NetIncome: 94000000000},
+				},
+			},
+		}
+
+		ts := setupFinancialMockServer(t, "/v1/financials/income", map[string]string{
+			"symbols": "AAPL.US",
+			"latest":  "true",
+		}, expectedResp)
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetIncome(context.Background(), &FinancialReq{
+			Symbols: "AAPL.US",
+			Latest:  true,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		records := resp.Data["AAPL.US"]
+		require.Len(t, records, 1)
 	})
 
 	t.Run("server error response", func(t *testing.T) {
@@ -520,6 +575,35 @@ func TestGetMetrics(t *testing.T) {
 		require.Len(t, records, 1)
 	})
 
+	t.Run("successful query with date range", func(t *testing.T) {
+		expectedResp := &GetMetricsResp{
+			Data: map[string][]MetricsRecord{
+				"AAPL.US": {
+					{PeriodEnd: "2024-12-31", ROE: 0.175, ROA: 0.125},
+					{PeriodEnd: "2024-09-30", ROE: 0.16, ROA: 0.11},
+				},
+			},
+		}
+
+		ts := setupFinancialMockServer(t, "/v1/financials/metrics", map[string]string{
+			"symbols":    "AAPL.US",
+			"start_date": "2024-01-01",
+			"end_date":   "2024-12-31",
+		}, expectedResp)
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetMetrics(context.Background(), &FinancialReq{
+			Symbols:   "AAPL.US",
+			StartDate: "2024-01-01",
+			EndDate:   "2024-12-31",
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		records := resp.Data["AAPL.US"]
+		assert.Len(t, records, 2)
+	})
+
 	t.Run("server error response", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, http.MethodGet, r.Method)
@@ -644,6 +728,35 @@ func TestGetShare(t *testing.T) {
 		require.Len(t, records, 1)
 		assert.Equal(t, 15400000000.0, records[0].TotalShares)
 		assert.Equal(t, 15300000000.0, records[0].FloatShares)
+	})
+
+	t.Run("successful query with date range", func(t *testing.T) {
+		expectedResp := &GetShareResp{
+			Data: map[string][]SharesRecord{
+				"AAPL.US": {
+					{PeriodEnd: "2024-12-31", TotalShares: 15400000000, FloatShares: 15300000000},
+					{PeriodEnd: "2024-09-30", TotalShares: 15500000000, FloatShares: 15400000000},
+				},
+			},
+		}
+
+		ts := setupFinancialMockServer(t, "/v1/financials/shares", map[string]string{
+			"symbols":    "AAPL.US",
+			"start_date": "2024-01-01",
+			"end_date":   "2024-12-31",
+		}, expectedResp)
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.GetShare(context.Background(), &FinancialReq{
+			Symbols:   "AAPL.US",
+			StartDate: "2024-01-01",
+			EndDate:   "2024-12-31",
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		records := resp.Data["AAPL.US"]
+		assert.Len(t, records, 2)
 	})
 
 	t.Run("multiple symbols", func(t *testing.T) {
