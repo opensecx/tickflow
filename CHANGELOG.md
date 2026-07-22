@@ -1,5 +1,9 @@
 # TickFlow Changelog
 
+## v0.0.4
+
+1. 新增 `CLAUDE.md` 仓库工作流与架构说明文档
+
 ## v0.0.3
 
 1. 新增实时行情相关功能：`GetQuote` / `BatchGetQuote` / `GetDepth` / `BatchGetDepth`
