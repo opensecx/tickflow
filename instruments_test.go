@@ -109,7 +109,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		assert.Len(t, resp.Data, 1)
 		assert.Equal(t, "AAPL.US", resp.Data[0].Symbol)
 		assert.Equal(t, "us_equity", resp.Data[0].Ext.Type)
-		assert.Equal(t, int64(15400000000), resp.Data[0].Ext.FloatShares)
+		assert.EqualValues(t, 15400000000.0, resp.Data[0].Ext.FloatShares)
 	})
 
 	t.Run("multiple symbols across exchanges", func(t *testing.T) {
@@ -394,7 +394,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		// 验证 A 股标的
 		assert.Equal(t, "600000.SH", resp.Data[0].Symbol)
 		assert.Equal(t, "cn_equity", resp.Data[0].Ext.Type)
-		assert.Equal(t, int64(29352000000), resp.Data[0].Ext.FloatShares)
+		assert.EqualValues(t, 29352000000.0, resp.Data[0].Ext.FloatShares)
 		assert.Equal(t, 10.45, resp.Data[0].Ext.LimitUp)
 
 		// 验证美股标的
