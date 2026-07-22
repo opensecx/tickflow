@@ -23,13 +23,13 @@ const (
 // InstrumentExt contains market-specific extension fields for an instrument.
 type InstrumentExt struct {
 	Type        string  `json:"type,omitempty"`         // cn_equity / us_equity / hk_equity
-	FloatShares int64   `json:"float_shares,omitempty"` // 流通股本
-	TotalShares int64   `json:"total_shares,omitempty"` // 总股本
+	ListingDate string  `json:"listing_date,omitempty"` // 上市日期 (cn_equity)
+	FloatShares float64 `json:"float_shares,omitempty"` // 流通股本
+	TotalShares float64 `json:"total_shares,omitempty"` // 总股本
+	TickSize    float64 `json:"tick_size,omitempty"`    // 最小变动价位 (cn_equity)
 	LimitUp     float64 `json:"limit_up,omitempty"`     // 涨停价 (cn_equity)
 	LimitDown   float64 `json:"limit_down,omitempty"`   // 跌停价 (cn_equity)
-	ListingDate string  `json:"listing_date,omitempty"` // 上市日期 (cn_equity)
 	NameEn      string  `json:"name_en,omitempty"`      // 英文名 (cn_equity)
-	TickSize    float64 `json:"tick_size,omitempty"`    // 最小变动价位 (cn_equity)
 	LotSize     int     `json:"lot_size,omitempty"`     // 每手股数 (hk_equity)
 }
 

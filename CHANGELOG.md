@@ -1,5 +1,9 @@
 # TickFlow Changelog
 
+## v0.0.8
+
+1. 调整 `Instrument` 中 `FloatShares` 和 `TotalShares` 为 float64 类型
+
 ## v0.0.7
 
 1. 调整 `Instrument` 结构体字段类型：`Name` 由 `*string` 改为 `string`，`Type` 由 `*InstrumentType` 改为 `InstrumentType`
