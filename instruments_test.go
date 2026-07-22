@@ -11,16 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// strPtr 返回字符串指针
-func strPtr(s string) *string {
-	return &s
-}
-
-// typePtr 返回 InstrumentType 指针
-func typePtr(t InstrumentType) *InstrumentType {
-	return &t
-}
-
 func TestIsValidExchange(t *testing.T) {
 	tests := []struct {
 		exchange string
@@ -96,8 +86,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "US",
 					Code:     "AAPL",
 					Region:   "US",
-					Name:     strPtr("Apple Inc."),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "Apple Inc.",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "us_equity",
 						FloatShares: 15400000000,
@@ -133,8 +123,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "SH",
 					Code:     "600000",
 					Region:   "CN",
-					Name:     strPtr("浦发银行"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "浦发银行",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "cn_equity",
 						FloatShares: 29352000000,
@@ -151,8 +141,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "SZ",
 					Code:     "000001",
 					Region:   "CN",
-					Name:     strPtr("平安银行"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "平安银行",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "cn_equity",
 						FloatShares: 19400000000,
@@ -164,8 +154,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "US",
 					Code:     "AAPL",
 					Region:   "US",
-					Name:     strPtr("Apple Inc."),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "Apple Inc.",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "us_equity",
 						FloatShares: 15400000000,
@@ -177,8 +167,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "HK",
 					Code:     "00700",
 					Region:   "HK",
-					Name:     strPtr("Tencent Holdings Ltd"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "Tencent Holdings Ltd",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "hk_equity",
 						FloatShares: 9200000000,
@@ -218,8 +208,8 @@ func TestGetInstrumentMetaData(t *testing.T) {
 					Exchange: "US",
 					Code:     "SPY",
 					Region:   "US",
-					Name:     strPtr("SPDR S&P 500 ETF Trust"),
-					Type:     typePtr(InstrumentTypeETF),
+					Name:     "SPDR S&P 500 ETF Trust",
+					Type:     InstrumentTypeETF,
 					Ext:      nil,
 				},
 			},
@@ -233,7 +223,7 @@ func TestGetInstrumentMetaData(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 1)
-		assert.Equal(t, InstrumentTypeETF, *resp.Data[0].Type)
+		assert.Equal(t, InstrumentTypeETF, resp.Data[0].Type)
 		assert.Nil(t, resp.Data[0].Ext)
 	})
 
@@ -336,8 +326,8 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 					Exchange: "SH",
 					Code:     "600000",
 					Region:   "CN",
-					Name:     strPtr("浦发银行"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "浦发银行",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "cn_equity",
 						FloatShares: 29352000000,
@@ -354,8 +344,8 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 					Exchange: "SZ",
 					Code:     "000001",
 					Region:   "CN",
-					Name:     strPtr("平安银行"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "平安银行",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "cn_equity",
 						FloatShares: 19400000000,
@@ -367,8 +357,8 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 					Exchange: "US",
 					Code:     "AAPL",
 					Region:   "US",
-					Name:     strPtr("Apple Inc."),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "Apple Inc.",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "us_equity",
 						FloatShares: 15400000000,
@@ -380,8 +370,8 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 					Exchange: "HK",
 					Code:     "00700",
 					Region:   "HK",
-					Name:     strPtr("Tencent Holdings Ltd"),
-					Type:     typePtr(InstrumentTypeStock),
+					Name:     "Tencent Holdings Ltd",
+					Type:     InstrumentTypeStock,
 					Ext: &InstrumentExt{
 						Type:        "hk_equity",
 						FloatShares: 9200000000,
@@ -426,8 +416,8 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 					Exchange: "US",
 					Code:     "SPY",
 					Region:   "US",
-					Name:     strPtr("SPDR S&P 500 ETF Trust"),
-					Type:     typePtr(InstrumentTypeETF),
+					Name:     "SPDR S&P 500 ETF Trust",
+					Type:     InstrumentTypeETF,
 					Ext:      nil,
 				},
 			},
@@ -442,7 +432,7 @@ func TestBatchGetInstrumentMetaData(t *testing.T) {
 		require.NotNil(t, resp)
 		assert.Len(t, resp.Data, 1)
 		assert.Equal(t, "SPY.US", resp.Data[0].Symbol)
-		assert.Equal(t, InstrumentTypeETF, *resp.Data[0].Type)
+		assert.Equal(t, InstrumentTypeETF, resp.Data[0].Type)
 		assert.Nil(t, resp.Data[0].Ext)
 	})
 

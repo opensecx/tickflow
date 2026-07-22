@@ -16,9 +16,9 @@ type GetExchangeInstrumentReq struct {
 
 // GetExchangeInstrumentResp is the response from GetExchangeInstrument.
 type GetExchangeInstrumentResp struct {
-	Exchange string       `json:"exchange"` // 交易所代码
-	Count    int          `json:"count"`    // 标的数量
-	Data     []Instrument `json:"data"`     // 标的列表
+	Exchange string        `json:"exchange"` // 交易所代码
+	Count    int           `json:"count"`    // 标的数量
+	Data     []*Instrument `json:"data"`     // 标的列表
 }
 
 // GetExchangeInstrument returns the list of instruments for a given exchange.
