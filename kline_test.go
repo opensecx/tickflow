@@ -330,6 +330,51 @@ func TestBatchGetKline(t *testing.T) {
 		assert.Len(t, resp.Data, 2)
 	})
 
+	t.Run("successful batch query with time range", func(t *testing.T) {
+		symbols := "600000.SH,AAPL.US"
+		startTime := int64(1704067200000)
+		endTime := int64(1706745600000)
+		expectedResp := &BatchGetKlineResp{
+			Data: map[string]*CompactKlineData{
+				"600000.SH": {
+					Timestamp: []int64{1704067200000},
+					Open:      []float64{10.0},
+					High:      []float64{10.5},
+					Low:       []float64{9.8},
+					Close:     []float64{10.3},
+					Volume:    []int64{5000000},
+					Amount:    []float64{51500000},
+				},
+				"AAPL.US": {
+					Timestamp: []int64{1704067200000},
+					Open:      []float64{150.0},
+					High:      []float64{155.0},
+					Low:       []float64{149.0},
+					Close:     []float64{154.0},
+					Volume:    []int64{1000000},
+					Amount:    []float64{154000000},
+				},
+			},
+		}
+
+		ts := setupKlineMockServer(t, "/v1/klines/batch", map[string]string{
+			"symbols":    symbols,
+			"start_time": "1704067200000",
+			"end_time":   "1706745600000",
+		}, expectedResp)
+		defer ts.Close()
+
+		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
+		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{
+			Symbols:   symbols,
+			StartTime: &startTime,
+			EndTime:   &endTime,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, resp)
+		assert.Len(t, resp.Data, 2)
+	})
+
 	t.Run("server error response", func(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			assert.Equal(t, http.MethodGet, r.Method)

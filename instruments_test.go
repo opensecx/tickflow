@@ -45,6 +45,21 @@ func TestIsValidExchange(t *testing.T) {
 	}
 }
 
+func TestApiError(t *testing.T) {
+	t.Run("error message format", func(t *testing.T) {
+		err := &ApiError{
+			Code:    "INVALID_SYMBOL",
+			Message: "Invalid symbol format: BAD",
+		}
+		assert.Equal(t, "tickflow api error [INVALID_SYMBOL]: Invalid symbol format: BAD", err.Error())
+	})
+
+	t.Run("empty code and message", func(t *testing.T) {
+		err := &ApiError{}
+		assert.Equal(t, "tickflow api error []: ", err.Error())
+	})
+}
+
 func TestGetInstrumentMetaData(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
