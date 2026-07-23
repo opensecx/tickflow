@@ -1,5 +1,10 @@
 # TickFlow Changelog
 
+## v0.0.9
+
+1. 调整 K 线请求结构体中 `StartTime` 和 `EndTime` 字段类型：由 `*int64` 改为 `int64`（`GetKlineReq` / `BatchGetKlineReq` / `GetExFactorReq`）
+2. 同步修复 `kline_test.go` 中的用例并移除不再需要的 `int64Ptr` 辅助函数
+
 ## v0.0.8
 
 1. 调整 `Instrument` 中 `FloatShares` 和 `TotalShares` 为 float64 类型

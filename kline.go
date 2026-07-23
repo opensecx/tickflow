@@ -70,8 +70,8 @@ type GetKlineReq struct {
 	Symbol    string     `json:"symbol"`               // 标的代码, 例如 "600000.SH"
 	Period    Period     `json:"period,omitempty"`     // K线周期
 	Count     int        `json:"count,omitempty"`      // 返回的K线数量 (默认100, 最大10000)
-	StartTime *int64     `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
-	EndTime   *int64     `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
+	StartTime int64      `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
+	EndTime   int64      `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
 	Adjust    AdjustType `json:"adjust,omitempty"`     // 复权类型
 }
 
@@ -111,11 +111,11 @@ func (tf *TickFlow) GetKline(ctx context.Context, req *GetKlineReq) (resp *GetKl
 	if req.Count > 0 {
 		rb = rb.ParamInt("count", req.Count)
 	}
-	if req.StartTime != nil {
-		rb = rb.ParamInt("start_time", int(*req.StartTime))
+	if req.StartTime != 0 {
+		rb = rb.ParamInt("start_time", int(req.StartTime))
 	}
-	if req.EndTime != nil {
-		rb = rb.ParamInt("end_time", int(*req.EndTime))
+	if req.EndTime != 0 {
+		rb = rb.ParamInt("end_time", int(req.EndTime))
 	}
 	if req.Adjust != "" {
 		rb = rb.Param("adjust", string(req.Adjust))
@@ -135,8 +135,8 @@ type BatchGetKlineReq struct {
 	Symbols   string     `json:"symbols"`              // 标的代码，逗号分隔, 例如 "600000.SH,000001.SZ"
 	Period    Period     `json:"period,omitempty"`     // K线周期
 	Count     int        `json:"count,omitempty"`      // 返回的K线数量 (默认100, 最大10000)
-	StartTime *int64     `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
-	EndTime   *int64     `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
+	StartTime int64      `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
+	EndTime   int64      `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
 	Adjust    AdjustType `json:"adjust,omitempty"`     // 复权类型
 }
 
@@ -176,11 +176,11 @@ func (tf *TickFlow) BatchGetKline(ctx context.Context, req *BatchGetKlineReq) (r
 	if req.Count > 0 {
 		rb = rb.ParamInt("count", req.Count)
 	}
-	if req.StartTime != nil {
-		rb = rb.ParamInt("start_time", int(*req.StartTime))
+	if req.StartTime != 0 {
+		rb = rb.ParamInt("start_time", int(req.StartTime))
 	}
-	if req.EndTime != nil {
-		rb = rb.ParamInt("end_time", int(*req.EndTime))
+	if req.EndTime != 0 {
+		rb = rb.ParamInt("end_time", int(req.EndTime))
 	}
 	if req.Adjust != "" {
 		rb = rb.Param("adjust", string(req.Adjust))
@@ -204,8 +204,8 @@ type ExFactorEntry struct {
 // GetExFactorReq is the request parameters for GetExFactor.
 type GetExFactorReq struct {
 	Symbols   string `json:"symbols"`              // 逗号分隔的标的代码, 例如 "600519.SH,000001.SZ"
-	StartTime *int64 `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
-	EndTime   *int64 `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
+	StartTime int64  `json:"start_time,omitempty"` // 开始时间(毫秒时间戳)
+	EndTime   int64  `json:"end_time,omitempty"`   // 结束时间(毫秒时间戳)
 }
 
 // GetExFactorResp is the response from GetExFactor.
@@ -235,11 +235,11 @@ func (tf *TickFlow) GetExFactor(ctx context.Context, req *GetExFactorReq) (resp 
 		Header("x-api-key", tf.xApiKey).
 		Param("symbols", req.Symbols)
 
-	if req.StartTime != nil {
-		rb = rb.ParamInt("start_time", int(*req.StartTime))
+	if req.StartTime != 0 {
+		rb = rb.ParamInt("start_time", int(req.StartTime))
 	}
-	if req.EndTime != nil {
-		rb = rb.ParamInt("end_time", int(*req.EndTime))
+	if req.EndTime != 0 {
+		rb = rb.ParamInt("end_time", int(req.EndTime))
 	}
 
 	err = rb.ToJSON(&resp).Fetch(ctx)
