@@ -11,11 +11,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// int64Ptr 返回 int64 指针
-func int64Ptr(i int64) *int64 {
-	return &i
-}
-
 func TestGetKline(t *testing.T) {
 	t.Run("nil request returns error", func(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: defaultBaseURL}
@@ -87,8 +82,8 @@ func TestGetKline(t *testing.T) {
 			Symbol:    "600000.SH",
 			Period:    Period1d,
 			Count:     3,
-			StartTime: int64Ptr(1704067200000),
-			EndTime:   int64Ptr(1704326400000),
+			StartTime: 1704067200000,
+			EndTime:   1704326400000,
 			Adjust:    AdjustTypeForward,
 		})
 		require.NoError(t, err)
@@ -367,8 +362,8 @@ func TestBatchGetKline(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
 		resp, err := tf.BatchGetKline(context.Background(), &BatchGetKlineReq{
 			Symbols:   symbols,
-			StartTime: &startTime,
-			EndTime:   &endTime,
+			StartTime: startTime,
+			EndTime:   endTime,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
@@ -489,8 +484,8 @@ func TestGetExFactor(t *testing.T) {
 		tf := &TickFlow{xApiKey: "test-key", baseURL: ts.URL}
 		resp, err := tf.GetExFactor(context.Background(), &GetExFactorReq{
 			Symbols:   symbols,
-			StartTime: int64Ptr(1700000000000),
-			EndTime:   int64Ptr(1720000000000),
+			StartTime: 1700000000000,
+			EndTime:   1720000000000,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, resp)
