@@ -588,3 +588,200 @@ func setupKlineMockServer(t *testing.T, expectedPath string, expectedParams map[
 		assert.Nil(t, err)
 	}))
 }
+
+func TestCompactKlineDataToKlines(t *testing.T) {
+	t.Run("nil receiver returns nil", func(t *testing.T) {
+		var c *CompactKlineData
+		klines, err := c.ToKlines()
+		assert.Nil(t, klines)
+		assert.NoError(t, err)
+	})
+
+	t.Run("empty data returns nil", func(t *testing.T) {
+		c := &CompactKlineData{}
+		klines, err := c.ToKlines()
+		assert.Nil(t, klines)
+		assert.NoError(t, err)
+	})
+
+	t.Run("converts columnar data to sorted kline slice", func(t *testing.T) {
+		c := &CompactKlineData{
+			Timestamp:       []int64{1704153600000, 1704067200000, 1704240000000},
+			Open:            []float64{151.0, 150.0, 152.0},
+			High:            []float64{156.0, 155.0, 157.0},
+			Low:             []float64{150.0, 149.0, 151.0},
+			Close:           []float64{155.5, 154.0, 156.0},
+			Volume:          []int64{1200000, 1000000, 1400000},
+			Amount:          []float64{186600000, 154000000, 218400000},
+			PrevClose:       []float64{149.5, 148.5, 150.5},
+			OpenInterest:    []float64{5000.0, 4800.0, 5200.0},
+			SettlementPrice: []float64{153.0, 152.0, 155.0},
+		}
+
+		klines, err := c.ToKlines()
+		require.NoError(t, err)
+		require.Len(t, klines, 3)
+
+		// 验证按时间戳升序排列
+		assert.Equal(t, []int64{1704067200000, 1704153600000, 1704240000000},
+			[]int64{klines[0].Timestamp, klines[1].Timestamp, klines[2].Timestamp})
+
+		// 验证第一根 K 线（原索引 1，时间最早）
+		assert.Equal(t, int64(1704067200000), klines[0].Timestamp)
+		assert.Equal(t, 150.0, klines[0].Open)
+		assert.Equal(t, 155.0, klines[0].High)
+		assert.Equal(t, 149.0, klines[0].Low)
+		assert.Equal(t, 154.0, klines[0].Close)
+		assert.Equal(t, int64(1000000), klines[0].Volume)
+		assert.Equal(t, 154000000.0, klines[0].Amount)
+		assert.Equal(t, 148.5, klines[0].PrevClose)
+		assert.Equal(t, 4800.0, klines[0].OpenInterest)
+		assert.Equal(t, 152.0, klines[0].SettlementPrice)
+
+		// 验证中间 K 线（原索引 0）
+		assert.Equal(t, int64(1704153600000), klines[1].Timestamp)
+		assert.Equal(t, 151.0, klines[1].Open)
+		assert.Equal(t, 5000.0, klines[1].OpenInterest)
+		assert.Equal(t, 153.0, klines[1].SettlementPrice)
+
+		// 验证最后一根 K 线（原索引 2，时间最晚）
+		assert.Equal(t, int64(1704240000000), klines[2].Timestamp)
+		assert.Equal(t, 152.0, klines[2].Open)
+		assert.Equal(t, 156.0, klines[2].Close)
+		assert.Equal(t, 5200.0, klines[2].OpenInterest)
+		assert.Equal(t, 155.0, klines[2].SettlementPrice)
+	})
+
+	t.Run("optional fields absent remain zero", func(t *testing.T) {
+		c := &CompactKlineData{
+			Timestamp: []int64{1704067200000},
+			Open:      []float64{150.0},
+			High:      []float64{155.0},
+			Low:       []float64{149.0},
+			Close:     []float64{154.0},
+			Volume:    []int64{1000000},
+			Amount:    []float64{154000000},
+		}
+
+		klines, err := c.ToKlines()
+		require.NoError(t, err)
+		require.Len(t, klines, 1)
+		assert.Equal(t, 0.0, klines[0].PrevClose)
+		assert.Equal(t, 0.0, klines[0].OpenInterest)
+		assert.Equal(t, 0.0, klines[0].SettlementPrice)
+	})
+
+	t.Run("already sorted data stays sorted", func(t *testing.T) {
+		c := &CompactKlineData{
+			Timestamp: []int64{1704067200000, 1704153600000},
+			Open:      []float64{150.0, 151.0},
+			High:      []float64{155.0, 156.0},
+			Low:       []float64{149.0, 150.0},
+			Close:     []float64{154.0, 155.5},
+			Volume:    []int64{1000000, 1200000},
+			Amount:    []float64{154000000, 186600000},
+		}
+
+		klines, err := c.ToKlines()
+		require.NoError(t, err)
+		require.Len(t, klines, 2)
+		assert.True(t, klines[0].Timestamp < klines[1].Timestamp)
+		assert.Equal(t, 150.0, klines[0].Open)
+		assert.Equal(t, 151.0, klines[1].Open)
+	})
+
+	t.Run("length mismatch returns error", func(t *testing.T) {
+		c := &CompactKlineData{
+			Timestamp: []int64{1704067200000, 1704153600000},
+			Open:      []float64{150.0, 151.0},
+			High:      []float64{155.0, 156.0},
+			Low:       []float64{149.0, 150.0},
+			Close:     []float64{154.0, 155.5},
+			Volume:    []int64{1000000}, // 长度不一致
+			Amount:    []float64{154000000, 186600000},
+		}
+
+		klines, err := c.ToKlines()
+		assert.Nil(t, klines)
+		assert.ErrorIs(t, err, ErrKlineDataLengthMismatch)
+	})
+}
+
+func TestBatchGetKlineRespToKlines(t *testing.T) {
+	t.Run("nil receiver returns nil", func(t *testing.T) {
+		var r *BatchGetKlineResp
+		result, err := r.ToKlines()
+		assert.Nil(t, result)
+		assert.NoError(t, err)
+	})
+
+	t.Run("empty data returns nil", func(t *testing.T) {
+		r := &BatchGetKlineResp{Data: map[string]*CompactKlineData{}}
+		result, err := r.ToKlines()
+		assert.Nil(t, result)
+		assert.NoError(t, err)
+	})
+
+	t.Run("converts map to flat slice sorted by symbol", func(t *testing.T) {
+		r := &BatchGetKlineResp{
+			Data: map[string]*CompactKlineData{
+				"600000.SH": {
+					Timestamp: []int64{1704153600000, 1704067200000},
+					Open:      []float64{10.1, 10.0},
+					High:      []float64{10.6, 10.5},
+					Low:       []float64{9.9, 9.8},
+					Close:     []float64{10.4, 10.3},
+					Volume:    []int64{6000000, 5000000},
+					Amount:    []float64{62400000, 51500000},
+				},
+				"AAPL.US": {
+					Timestamp: []int64{1704067200000},
+					Open:      []float64{150.0},
+					High:      []float64{155.0},
+					Low:       []float64{149.0},
+					Close:     []float64{154.0},
+					Volume:    []int64{1000000},
+					Amount:    []float64{154000000},
+				},
+			},
+		}
+
+		result, err := r.ToKlines()
+		require.NoError(t, err)
+		require.Len(t, result, 2)
+
+		// 验证按 symbol 升序排列
+		assert.Equal(t, "600000.SH", result[0].Symbol)
+		assert.Equal(t, "AAPL.US", result[1].Symbol)
+
+		// 验证 600000.SH 的 K 线按时间升序
+		require.Len(t, result[0].Klines, 2)
+		assert.Equal(t, int64(1704067200000), result[0].Klines[0].Timestamp)
+		assert.Equal(t, int64(1704153600000), result[0].Klines[1].Timestamp)
+
+		// 验证 AAPL.US 的 K 线
+		require.Len(t, result[1].Klines, 1)
+		assert.Equal(t, 150.0, result[1].Klines[0].Open)
+		assert.Equal(t, 154.0, result[1].Klines[0].Close)
+	})
+
+	t.Run("length mismatch in one symbol returns error", func(t *testing.T) {
+		r := &BatchGetKlineResp{
+			Data: map[string]*CompactKlineData{
+				"AAPL.US": {
+					Timestamp: []int64{1704067200000, 1704153600000},
+					Open:      []float64{150.0},
+					High:      []float64{155.0, 156.0},
+					Low:       []float64{149.0, 150.0},
+					Close:     []float64{154.0, 155.5},
+					Volume:    []int64{1000000, 1200000},
+					Amount:    []float64{154000000, 186600000},
+				},
+			},
+		}
+
+		result, err := r.ToKlines()
+		assert.Nil(t, result)
+		assert.ErrorIs(t, err, ErrKlineDataLengthMismatch)
+	})
+}

@@ -2,8 +2,10 @@ package tickflow
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"sort"
 
 	"github.com/carlmjohnson/requests"
 )
@@ -63,6 +65,63 @@ type CompactKlineData struct {
 	PrevClose       []float64 `json:"prev_close"`       // 前收盘价 (可选)
 	OpenInterest    []float64 `json:"open_interest"`    // 持仓量 (可选)
 	SettlementPrice []float64 `json:"settlement_price"` // 结算价 (可选)
+}
+
+// ErrKlineDataLengthMismatch 表示 CompactKlineData 中各字段切片长度不一致。
+var ErrKlineDataLengthMismatch = errors.New("kline data length mismatch")
+
+// ToKlines 将紧凑列式 K 线数据转换为按时间戳升序排列的 Kline 指针切片。
+// 若接收者为 nil 或数据为空，返回 nil, nil。
+// 可选字段 (PrevClose / OpenInterest / SettlementPrice) 若存在则填充，否则为零值。
+// 若必填字段的切片长度不一致，返回 ErrKlineDataLengthMismatch 错误。
+func (c *CompactKlineData) ToKlines() ([]*Kline, error) {
+	if c == nil || len(c.Timestamp) == 0 {
+		return nil, nil
+	}
+
+	n := len(c.Timestamp)
+	lengths := map[string]int{
+		"open":      len(c.Open),
+		"high":      len(c.High),
+		"low":       len(c.Low),
+		"close":     len(c.Close),
+		"volume":    len(c.Volume),
+		"amount":    len(c.Amount),
+	}
+	for field, l := range lengths {
+		if l != n {
+			return nil, fmt.Errorf("%w: timestamp has %d elements, %s has %d", ErrKlineDataLengthMismatch, n, field, l)
+		}
+	}
+
+	klines := make([]*Kline, n)
+	for i := 0; i < n; i++ {
+		k := &Kline{
+			Timestamp: c.Timestamp[i],
+			Open:      c.Open[i],
+			High:      c.High[i],
+			Low:       c.Low[i],
+			Close:     c.Close[i],
+			Volume:    c.Volume[i],
+			Amount:    c.Amount[i],
+		}
+		if i < len(c.PrevClose) {
+			k.PrevClose = c.PrevClose[i]
+		}
+		if i < len(c.OpenInterest) {
+			k.OpenInterest = c.OpenInterest[i]
+		}
+		if i < len(c.SettlementPrice) {
+			k.SettlementPrice = c.SettlementPrice[i]
+		}
+		klines[i] = k
+	}
+
+	sort.Slice(klines, func(i, j int) bool {
+		return klines[i].Timestamp < klines[j].Timestamp
+	})
+
+	return klines, nil
 }
 
 // GetKlineReq is the request parameters for GetKline.
@@ -143,6 +202,40 @@ type BatchGetKlineReq struct {
 // BatchGetKlineResp is the response from BatchGetKline.
 type BatchGetKlineResp struct {
 	Data map[string]*CompactKlineData `json:"data"` // key 为标的代码，value 为紧凑列式K线数据
+}
+
+// SymbolKline 携带标的代码及其对应的 K 线数据。
+type SymbolKline struct {
+	Symbol string    // 标的代码，例如 "600000.SH"
+	Klines []*Kline  // 按时间戳升序排列的 K 线数据
+}
+
+// ToKlines 将 BatchGetKlineResp 中的列式数据转换为平铺的 SymbolKline 指针切片。
+// 每个 SymbolKline 内的 Klines 按时间戳升序排列。
+// 若接收者为 nil 或数据为空，返回 nil, nil。
+// 若某个 symbol 的字段切片长度不一致，返回 ErrKlineDataLengthMismatch 错误。
+func (r *BatchGetKlineResp) ToKlines() ([]*SymbolKline, error) {
+	if r == nil || len(r.Data) == 0 {
+		return nil, nil
+	}
+
+	result := make([]*SymbolKline, 0, len(r.Data))
+	for symbol, data := range r.Data {
+		klines, err := data.ToKlines()
+		if err != nil {
+			return nil, fmt.Errorf("symbol %s: %w", symbol, err)
+		}
+		result = append(result, &SymbolKline{
+			Symbol: symbol,
+			Klines: klines,
+		})
+	}
+
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Symbol < result[j].Symbol
+	})
+
+	return result, nil
 }
 
 // BatchGetKline returns K-line data for multiple symbols in a single request.

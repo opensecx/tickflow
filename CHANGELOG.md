@@ -1,5 +1,10 @@
 # TickFlow Changelog
 
+## v0.0.10
+
+1. 新增 `CompactKlineData.ToKlines` 方法，将紧凑列式 K 线数据转换为按时间戳升序排列的 `[]*Kline`，并校验各字段切片长度一致性
+2. 新增 `BatchGetKlineResp.ToKlines` 方法，将批量查询结果中的列式数据转换为平铺的 `[]*SymbolKline`（按 symbol 升序），每个元素携带标的代码及其 K 线数据
+
 ## v0.0.9
 
 1. 调整 K 线请求结构体中 `StartTime` 和 `EndTime` 字段类型：由 `*int64` 改为 `int64`（`GetKlineReq` / `BatchGetKlineReq` / `GetExFactorReq`）
